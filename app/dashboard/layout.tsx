@@ -7,7 +7,7 @@ import { Rocket, BookOpen, FileText, Users, Settings, LogOut, Menu, X, Layers } 
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeProvider } from "@/components/theme-provider"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function DashboardLayout({
   children,
@@ -31,7 +31,21 @@ export default function DashboardLayout({
 
 function DashboardSidebar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true) // Inicialmente contraído
+  const [isTextVisible, setIsTextVisible] = useState(false)
+
+  // Efecto para manejar la visibilidad del texto con un pequeño retraso para el fade-in
+  useEffect(() => {
+    let timeout: NodeJS.Timeout
+    if (!isCollapsed) {
+      timeout = setTimeout(() => {
+        setIsTextVisible(true)
+      }, 50)
+    } else {
+      setIsTextVisible(false)
+    }
+    return () => clearTimeout(timeout)
+  }, [isCollapsed])
 
   return (
     <>
@@ -61,7 +75,11 @@ function DashboardSidebar() {
             <Link href="/dashboard" className="flex items-center gap-2">
               <Rocket className="h-6 w-6 text-purple-500" />
               {!isCollapsed && (
-                <span className="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-400">
+                <span
+                  className={`text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-400 transition-opacity duration-300 ${
+                    isTextVisible ? "opacity-100" : "opacity-0"
+                  }`}
+                >
                   Q<span className="text-purple-300">oredx</span>
                 </span>
               )}
@@ -127,7 +145,11 @@ function DashboardSidebar() {
                   <rect x="14" y="12" width="7" height="9" />
                   <rect x="3" y="16" width="7" height="5" />
                 </svg>
-                {!isCollapsed && "Dashboard"}
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Dashboard
+                  </span>
+                )}
               </Link>
               <Link
                 href="/dashboard/courses"
@@ -136,7 +158,11 @@ function DashboardSidebar() {
                 }`}
               >
                 <Layers className="h-5 w-5" />
-                {!isCollapsed && "Cursos"}
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Cursos
+                  </span>
+                )}
               </Link>
               <Link
                 href="/dashboard/add-content"
@@ -145,7 +171,43 @@ function DashboardSidebar() {
                 }`}
               >
                 <BookOpen className="h-5 w-5" />
-                {!isCollapsed && "Contenido"}
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Contenido
+                  </span>
+                )}
+              </Link>
+              <Link
+                href="/dashboard/skills"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-purple-300 transition-all hover:text-purple-50 hover:bg-purple-900/20 ${
+                  isCollapsed ? "justify-center" : ""
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                >
+                  <path d="m12 14 4-4" />
+                  <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+                  <path d="M3 15a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4Z" />
+                  <path d="M17 14v.01" />
+                  <path d="M14 14v.01" />
+                  <path d="M14 17v.01" />
+                  <path d="M17 17v.01" />
+                </svg>
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Habilidades
+                  </span>
+                )}
               </Link>
               <Link
                 href="/dashboard/review"
@@ -154,7 +216,11 @@ function DashboardSidebar() {
                 }`}
               >
                 <FileText className="h-5 w-5" />
-                {!isCollapsed && "Tests & Review"}
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Tests & Review
+                  </span>
+                )}
               </Link>
               <Link
                 href="/dashboard/classroom"
@@ -163,7 +229,11 @@ function DashboardSidebar() {
                 }`}
               >
                 <Users className="h-5 w-5" />
-                {!isCollapsed && "Classroom"}
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Classroom
+                  </span>
+                )}
               </Link>
               <Link
                 href="#"
@@ -172,7 +242,11 @@ function DashboardSidebar() {
                 }`}
               >
                 <Settings className="h-5 w-5" />
-                {!isCollapsed && "Settings"}
+                {!isCollapsed && (
+                  <span className={`transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}>
+                    Settings
+                  </span>
+                )}
               </Link>
             </nav>
           </div>
@@ -184,14 +258,16 @@ function DashboardSidebar() {
                     <AvatarImage src="/placeholder.svg?height=36&width=36" alt="Avatar" />
                     <AvatarFallback className="bg-purple-950/50 text-purple-300">PF</AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col">
+                  <div
+                    className={`flex flex-col transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}
+                  >
                     <span className="text-sm font-medium">Professor Flux</span>
                     <span className="text-xs text-muted-foreground">professor@qoredx.com</span>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start mt-2 text-purple-300 hover:text-purple-50 hover:bg-purple-900/20"
+                  className={`w-full justify-start mt-2 text-purple-300 hover:text-purple-50 hover:bg-purple-900/20 transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log Out
@@ -214,53 +290,6 @@ function DashboardNavbar() {
   return (
     <header className="h-14 border-b border-purple-900/50 bg-black/50 backdrop-blur-sm px-6 flex items-center md:pl-0">
       <div className="ml-auto flex items-center gap-4">
-        <div className="hidden md:flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 border-purple-900/50 text-purple-300 hover:bg-purple-900/20"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-            April 2025
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 border-purple-900/50 text-purple-300 hover:bg-purple-900/20"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            Calendar
-          </Button>
-        </div>
         <Button
           variant="outline"
           size="icon"

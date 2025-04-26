@@ -19,6 +19,7 @@ import {
   Network,
   Settings,
   Users,
+  Sparkles,
 } from "lucide-react"
 
 interface DashboardNavProps extends React.HTMLAttributes<HTMLElement> {
@@ -84,6 +85,13 @@ export function DashboardNav({ className, isCollapsed, ...props }: DashboardNavP
       variant: "ghost",
     },
     {
+      title: "Habilidades",
+      href: "/dashboard/skills",
+      icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+      variant: "ghost",
+      highlight: true, // Mantener el resaltado para que sea visible
+    },
+    {
       title: "Analíticas",
       href: "/dashboard/analytics",
       icon: <LineChart className="h-4 w-4" />,
@@ -118,7 +126,9 @@ export function DashboardNav({ className, isCollapsed, ...props }: DashboardNavP
               }),
               isActive
                 ? "bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white"
-                : "hover:bg-purple-900/20 hover:text-purple-300",
+                : item.highlight
+                  ? "border border-yellow-500/50 text-yellow-400 hover:bg-yellow-900/20"
+                  : "hover:bg-purple-900/20 hover:text-purple-300",
               isCollapsed ? "justify-center" : "justify-start",
               "h-9",
             )}

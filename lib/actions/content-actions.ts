@@ -165,3 +165,137 @@ export async function deleteContent(contentId: string) {
     }
   }
 }
+
+// Nueva función para buscar contenido
+export async function searchContent({
+  term,
+  type = "title",
+  courseFilter,
+  typeFilter,
+}: {
+  term: string
+  type: "title" | "id" | "creator" | "course"
+  courseFilter?: string
+  typeFilter?: "document" | "video" | "quiz" | "assignment"
+}) {
+  try {
+    let query = `
+      SELECT 
+        c.id, 
+        c.title, 
+        c.description, 
+        c.type, 
+        c.created_at as "createdAt",
+        u.name as "creatorName",
+        q.title as "courseName",
+        c.module_id as "moduleId"
+      FROM 
+        contents c
+      LEFT JOIN 
+        users u ON c.creator_id = u.id
+      LEFT JOIN 
+        modules m ON c.module_id = m.id
+      LEFT JOIN 
+        qlusters q ON m.qluster_id = q.id
+      WHERE 
+    `
+
+    // Construir la condición de búsqueda según el tipo
+    if (type === "title") {
+      query += `c.title ILIKE '%${term}%'`
+    } else if (type === "id") {
+      query += `c.id::text ILIKE '%${term}%'`
+    } else if (type === "creator") {
+      query += `u.name ILIKE '%${term}%'`
+    } else if (type === "course") {
+      query += `q.title ILIKE '%${term}%'`
+    }
+
+    // Añadir filtros adicionales si se proporcionan
+    if (courseFilter) {
+      query += ` AND q.id = '${courseFilter}'`
+    }
+
+    if (typeFilter) {
+      query += ` AND c.type = '${typeFilter}'`
+    }
+
+    // Ordenar por fecha de creación (más reciente primero)
+    query += ` ORDER BY c.created_at DESC LIMIT 50`
+
+    const results = await sql.raw(query)
+
+    return {
+      success: true,
+      content: results.rows,
+    }
+  } catch (error) {
+    console.error("Error searching content:", error)
+    return {
+      success: false,
+      error: "Failed to search content",
+    }
+  }
+}
+
+// Nueva función para clonar contenido
+export async function cloneContent(contentId: string, moduleId: string) {
+  try {
+    // Obtener el contenido original
+    const originalContent = await sql`
+      SELECT * FROM contents
+      WHERE id = ${contentId}
+    `
+
+    if (originalContent.length === 0) {
+      return {
+        success: false,
+        error: "Content not found",
+      }
+    }
+
+    const content = originalContent[0]
+
+    // Insertar el contenido clonado
+    const result = await sql`
+      INSERT INTO contents (
+        module_id, 
+        title, 
+        description, 
+        type, 
+        content, 
+        "order", 
+        created_at, 
+        updated_at,
+        creator_id
+      )
+      VALUES (
+        ${moduleId}, 
+        ${content.title + " (Copia)"}, 
+        ${content.description}, 
+        ${content.type}, 
+        ${content.content}, 
+        ${content.order}, 
+        NOW(), 
+        NOW(),
+        ${content.creator_id}
+      )
+      RETURNING id
+    `
+
+    // Revalidar la ruta para actualizar los datos
+    revalidatePath("/dashboard/add-content")
+    revalidatePath("/dashboard/courses")
+
+    return {
+      success: true,
+      contentId: result[0].id,
+    }
+  } catch (error) {
+    console.error("Error cloning content:", error)
+    return {
+      success: false,
+      error: "Failed to clone content",
+    }
+  }
+}

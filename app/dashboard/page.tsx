@@ -13,6 +13,7 @@ import {
   Atom,
   CuboidIcon as Cube,
   Network,
+  Sparkles,
 } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardShell } from "@/components/dashboard-shell"
@@ -85,11 +86,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <DashboardHeader heading="Dashboard" text="Bienvenido a Qoredx, tu plataforma de aprendizaje adaptativo">
-        <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600">
-          <Plus className="mr-2 h-4 w-4" /> Nuevo Qluster
-        </Button>
-      </DashboardHeader>
+      <DashboardHeader heading="Dashboard" text="Bienvenido a Qoredx, tu plataforma de aprendizaje adaptativo" />
       <DashboardShell>
         <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
@@ -152,13 +149,6 @@ export default function DashboardPage() {
                           <div className={`text-sm font-medium text-${item.color}-400`}>{item.time}</div>
                         </div>
                       ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full mt-2 border-purple-900/50 text-purple-300 hover:bg-purple-900/20"
-                      >
-                        <Plus className="mr-2 h-4 w-4" /> Añadir Evento
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -305,14 +295,21 @@ export default function DashboardPage() {
                       <Users className="mr-2 h-4 w-4" /> Gestionar Estudiantes
                     </Button>
                   </Link>
+                  <Link href="/dashboard/skills">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-yellow-900/50 text-yellow-300 hover:bg-yellow-900/20"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" /> Gestor de Habilidades
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </DashboardShell>
-
-      <FloatingCalendar />
     </>
   )
 }

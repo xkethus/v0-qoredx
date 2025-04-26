@@ -8,7 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardShell } from "@/components/dashboard-shell"
-import { BookOpen, FileText, Video, Code, Upload, Plus, Save, Tag, Sparkles, Link2, HelpCircle } from "lucide-react"
+import {
+  BookOpen,
+  FileText,
+  Video,
+  Code,
+  Upload,
+  Plus,
+  Save,
+  Tag,
+  Sparkles,
+  Link2,
+  HelpCircle,
+  Telescope,
+} from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -19,6 +32,7 @@ import QuizQuestionEditor, { type QuizQuestion, type QuestionType } from "@/comp
 import ContentReferenceSelector, { type ContentReference } from "@/components/content-reference-selector"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import ContentSearchModal, { type ContentSearchResult } from "@/components/content-search-modal"
 
 // Importar Quill dinámicamente para evitar errores de SSR
 const QuillEditor = dynamic(() => import("@/components/quill-editor"), {
@@ -52,6 +66,7 @@ export default function AddContentPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [newCategory, setNewCategory] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSearchModal, setShowSearchModal] = useState(false)
 
   // Estado para el quiz mejorado
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([])
@@ -233,25 +248,48 @@ export default function AddContentPage() {
     }
   }
 
+  const handleSelectSearchContent = (content: ContentSearchResult) => {
+    // Aquí implementaríamos la lógica para clonar el contenido seleccionado
+    setTitle(content.title + " (Copia)")
+    setDescription(content.description)
+    setActiveTab(content.type)
+
+    // En una implementación real, cargaríamos el contenido completo
+    toast({
+      title: "Contenido clonado",
+      description: `Se ha clonado "${content.title}" como base para tu nuevo contenido`,
+    })
+  }
+
   return (
     <>
-      <DashboardHeader heading="Add Content" text="Create and manage your educational content">
-        <Button
-          className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-              Publicando...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" /> Publicar Contenido
-            </>
-          )}
-        </Button>
+      <DashboardHeader heading="Crear Contenido" text="Crea y gestiona tu contenido educativo">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-cyan-900/50 text-cyan-300 hover:bg-cyan-950/20"
+            onClick={() => setShowSearchModal(true)}
+          >
+            <Telescope className="mr-2 h-4 w-4" />
+            Buscar
+          </Button>
+          <Button
+            className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                Publicando...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" /> Publicar Contenido
+              </>
+            )}
+          </Button>
+        </div>
       </DashboardHeader>
       <DashboardShell>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -938,6 +976,13 @@ export default function AddContentPage() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Modal de búsqueda de contenido */}
+      <ContentSearchModal
+        open={showSearchModal}
+        onOpenChange={setShowSearchModal}
+        onSelectContent={handleSelectSearchContent}
+      />
     </>
   )
 }

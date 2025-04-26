@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Telescope, Search, FileText, Video, Code, BookOpen, Copy, Eye, Loader2 } from "lucide-react"
+import { Search, FileText, Video, Code, BookOpen, Copy, Eye, Loader2, TelescopeIcon as Binoculars } from "lucide-react"
 import { searchContent } from "@/lib/actions/content-actions"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -154,7 +154,7 @@ export default function ContentSearchModal({ open, onOpenChange, onSelectContent
       <DialogContent className="bg-black/90 border-cyan-900/50 max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-cyan-300 flex items-center gap-2">
-            <Telescope className="h-5 w-5" /> Buscador de Contenido
+            <Binoculars className="h-5 w-5" /> Buscador de Contenido
           </DialogTitle>
           <DialogDescription>
             Busca contenido existente para visualizar o clonar en tu nuevo contenido

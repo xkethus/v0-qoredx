@@ -1,30 +1,89 @@
-# Qoredx
+# QoreEdu LMS - Versión con Base de Datos Real
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Este es un fork del proyecto QoreEdu LMS que se conecta a una base de datos PostgreSQL real a través de Neon.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/kike-hernandezs-projects/v0-retro-futuristic-lms)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/P63wbSy6obi)
+## Requisitos previos
 
-## Overview
+1. Node.js v18 o superior
+2. Una base de datos PostgreSQL (recomendamos usar [Neon](https://neon.tech) para desarrollo)
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## Configuración de la base de datos
 
-## Deployment
+1. Crea una cuenta en [Neon](https://neon.tech) si aún no tienes una
+2. Crea un nuevo proyecto en Neon
+3. Obtén la cadena de conexión desde el panel de control de Neon
+4. Crea un archivo `.env.local` en la raíz del proyecto con el siguiente contenido:
 
-Your project is live at:
+\`\`\`
+DATABASE_URL=postgresql://usuario:contraseña@endpoint/nombre_db
+\`\`\`
 
-**[https://vercel.com/kike-hernandezs-projects/v0-retro-futuristic-lms](https://vercel.com/kike-hernandezs-projects/v0-retro-futuristic-lms)**
+## Inicialización del proyecto
 
-## Build your app
+1. Instala las dependencias:
 
-Continue building your app on:
+\`\`\`bash
+npm install
+\`\`\`
 
-**[https://v0.dev/chat/projects/P63wbSy6obi](https://v0.dev/chat/projects/P63wbSy6obi)**
+2. Verifica la conexión a la base de datos:
 
-## How It Works
+\`\`\`bash
+npm run db:check
+\`\`\`
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+3. Inicializa la estructura de la base de datos:
+
+\`\`\`bash
+npm run db:init
+\`\`\`
+
+4. Siembra datos iniciales (opcional):
+
+\`\`\`bash
+npm run db:seed
+\`\`\`
+
+5. Inicia el servidor de desarrollo:
+
+\`\`\`bash
+npm run dev
+\`\`\`
+
+## Estructura del proyecto
+
+- `/lib/db/index.ts` - Configuración de la conexión a la base de datos
+- `/lib/db/schema.ts` - Definición del esquema de la base de datos
+- `/scripts` - Scripts para inicializar y sembrar la base de datos
+- `/lib/actions` - Acciones del servidor para interactuar con la base de datos
+
+## Credenciales de prueba
+
+Después de ejecutar el script de siembra de datos, puedes acceder al sistema con las siguientes credenciales:
+
+- **Email**: admin@qoreedu.com
+- **Password**: password123
+
+## Comandos útiles
+
+- `npm run dev`: Inicia el servidor de desarrollo
+- `npm run db:check`: Verifica la conexión a la base de datos
+- `npm run db:init`: Inicializa la estructura de la base de datos
+- `npm run db:seed`: Siembra datos iniciales
+- `npm run db:reset`: Reinicia la base de datos (inicializa y siembra)
+
+## Diferencias con la versión anterior
+
+Esta versión del proyecto se diferencia de la versión original en los siguientes aspectos:
+
+1. **Conexión a base de datos real**: Se conecta a una base de datos PostgreSQL real en lugar de usar datos de prueba o mocks.
+2. **Scripts de inicialización**: Incluye scripts para inicializar y sembrar la base de datos.
+3. **Manejo de errores mejorado**: Implementa un mejor manejo de errores en las operaciones de base de datos.
+4. **Configuración flexible**: Permite configurar la conexión a la base de datos mediante variables de entorno.
+
+## Próximos pasos
+
+1. Implementar autenticación real con JWT o NextAuth
+2. Añadir migraciones para gestionar cambios en el esquema
+3. Implementar caché para mejorar el rendimiento
+4. Añadir pruebas automatizadas para la capa de datos

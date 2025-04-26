@@ -87,7 +87,8 @@
     "@op-engineering/op-sqlite": "latest",
     "drizzle-orm": "latest",
     "d3": "latest",
-    "quill": "latest"
+    "quill": "latest",
+    "uuid": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

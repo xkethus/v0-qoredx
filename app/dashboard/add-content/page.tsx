@@ -20,7 +20,7 @@ import {
   Sparkles,
   Link2,
   HelpCircle,
-  Telescope,
+  TelescopeIcon as Binoculars,
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
@@ -270,7 +270,7 @@ export default function AddContentPage() {
             className="border-cyan-900/50 text-cyan-300 hover:bg-cyan-950/20"
             onClick={() => setShowSearchModal(true)}
           >
-            <Telescope className="mr-2 h-4 w-4" />
+            <Binoculars className="mr-2 h-4 w-4" />
             Buscar
           </Button>
           <Button

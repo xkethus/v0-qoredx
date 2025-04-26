@@ -1,0 +1,288 @@
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { DashboardShell } from "@/components/dashboard-shell"
+import { BookOpen, Calendar, MoreHorizontal, Plus, Search, Users, Rocket, Brain } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
+
+export default function QlustersPage() {
+  // Mock data para Qlusters (anteriormente cursos)
+  const qlusters = [
+    {
+      id: 1,
+      title: "Fundamentos de Física Cuántica",
+      description: "Un qluster introductorio a los principios de la física cuántica y sus aplicaciones.",
+      startDate: "2025-05-01",
+      endDate: "2025-08-15",
+      classes: ["QP101-A", "QP101-B"],
+      students: 42,
+      qerniums: 8,
+      progress: 0,
+      status: "scheduled",
+      color: "purple",
+    },
+    {
+      id: 2,
+      title: "Exploración Espacial Avanzada",
+      description: "Técnicas y teorías modernas para la exploración del espacio profundo.",
+      startDate: "2025-04-15",
+      endDate: "2025-07-30",
+      classes: ["SE200-A"],
+      students: 28,
+      qerniums: 6,
+      progress: 15,
+      status: "active",
+      color: "cyan",
+    },
+    {
+      id: 3,
+      title: "Ética en Inteligencia Artificial",
+      description: "Análisis de las implicaciones éticas del desarrollo y uso de la IA.",
+      startDate: "2025-03-10",
+      endDate: "2025-06-25",
+      classes: ["AIE300-A", "AIE300-B", "AIE300-C"],
+      students: 64,
+      qerniums: 10,
+      progress: 40,
+      status: "active",
+      color: "pink",
+    },
+    {
+      id: 4,
+      title: "Programación Cuántica",
+      description: "Introducción a los algoritmos y lenguajes de programación para computadoras cuánticas.",
+      startDate: "2025-06-01",
+      endDate: "2025-09-15",
+      classes: [],
+      students: 0,
+      qerniums: 12,
+      progress: 0,
+      status: "draft",
+      color: "purple",
+    },
+  ]
+
+  return (
+    <>
+      <DashboardHeader heading="Qlusters" text="Bloques Temáticos que agrupan Qerniums con objetivos comunes">
+        <Link href="/dashboard/qlusters/create">
+          <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600">
+            <Plus className="mr-2 h-4 w-4" /> Crear Qluster
+          </Button>
+        </Link>
+      </DashboardHeader>
+      <DashboardShell>
+        <Tabs defaultValue="all" className="space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <TabsList className="bg-black/20 border border-purple-900/50">
+              <TabsTrigger
+                value="all"
+                className="data-[state=active]:bg-purple-900/20 data-[state=active]:text-purple-300"
+              >
+                Todos
+              </TabsTrigger>
+              <TabsTrigger
+                value="active"
+                className="data-[state=active]:bg-purple-900/20 data-[state=active]:text-purple-300"
+              >
+                Activos
+              </TabsTrigger>
+              <TabsTrigger
+                value="scheduled"
+                className="data-[state=active]:bg-purple-900/20 data-[state=active]:text-purple-300"
+              >
+                Programados
+              </TabsTrigger>
+              <TabsTrigger
+                value="draft"
+                className="data-[state=active]:bg-purple-900/20 data-[state=active]:text-purple-300"
+              >
+                Borradores
+              </TabsTrigger>
+            </TabsList>
+            <div className="relative w-full sm:w-auto">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Buscar qlusters..."
+                className="w-full sm:w-[250px] pl-8 border-purple-900/50 bg-black/50 focus-visible:ring-purple-500"
+              />
+            </div>
+          </div>
+
+          <TabsContent value="all" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {qlusters.map((qluster) => {
+                let borderColor = "border-purple-900/50"
+                let shadowColor = "shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                let textColor = "text-purple-300"
+                let bgHoverColor = "hover:bg-purple-900/20"
+                let bgColor = "bg-purple-900/10"
+                let gradientFrom = "from-purple-500"
+                let gradientTo = "to-purple-300"
+
+                if (qluster.color === "cyan") {
+                  borderColor = "border-cyan-900/50"
+                  shadowColor = "shadow-[0_0_15px_rgba(34,211,238,0.1)]"
+                  textColor = "text-cyan-300"
+                  bgHoverColor = "hover:bg-cyan-900/20"
+                  bgColor = "bg-cyan-900/10"
+                  gradientFrom = "from-cyan-500"
+                  gradientTo = "to-cyan-300"
+                } else if (qluster.color === "pink") {
+                  borderColor = "border-pink-900/50"
+                  shadowColor = "shadow-[0_0_15px_rgba(236,72,153,0.1)]"
+                  textColor = "text-pink-300"
+                  bgHoverColor = "hover:bg-pink-900/20"
+                  bgColor = "bg-pink-900/10"
+                  gradientFrom = "from-pink-500"
+                  gradientTo = "to-pink-300"
+                }
+
+                return (
+                  <Card key={qluster.id} className={`${borderColor} bg-black/50 backdrop-blur-sm ${shadowColor}`}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className={`text-xl ${textColor}`}>{qluster.title}</CardTitle>
+                          <CardDescription className="line-clamp-1">{qluster.description}</CardDescription>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Menú</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-black/90 border-purple-900/50">
+                            <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
+                              Editar Qluster
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
+                              Ver Detalles
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
+                              Duplicar Qluster
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-400 focus:bg-red-900/20 focus:text-red-300">
+                              Eliminar Qluster
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Calendar className={`h-4 w-4 ${textColor}`} />
+                              <span className="text-sm">Fechas:</span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(qluster.startDate).toLocaleDateString()} -{" "}
+                              {new Date(qluster.endDate).toLocaleDateString()}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Brain className={`h-4 w-4 ${textColor}`} />
+                              <span className="text-sm">Qerniums:</span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">{qluster.qerniums}</span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Users className={`h-4 w-4 ${textColor}`} />
+                              <span className="text-sm">Estudiantes:</span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">{qluster.students}</span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <BookOpen className={`h-4 w-4 ${textColor}`} />
+                              <span className="text-sm">Clases:</span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {qluster.classes.length > 0 ? qluster.classes.join(", ") : "Sin asignar"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {qluster.status !== "draft" && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span>Progreso del qluster</span>
+                              <span>{qluster.progress}%</span>
+                            </div>
+                            <div className="w-full bg-black/50 rounded-full h-2">
+                              <div
+                                className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} h-2 rounded-full`}
+                                style={{ width: `${qluster.progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between items-center">
+                          <div>
+                            {qluster.status === "active" && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-cyan-950/50 text-cyan-300 border border-cyan-900/50">
+                                Activo
+                              </span>
+                            )}
+                            {qluster.status === "scheduled" && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-purple-950/50 text-purple-300 border border-purple-900/50">
+                                Programado
+                              </span>
+                            )}
+                            {qluster.status === "draft" && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-gray-800/50 text-gray-300 border border-gray-700/50">
+                                Borrador
+                              </span>
+                            )}
+                          </div>
+                          <Link href={`/dashboard/qlusters/${qluster.id}`}>
+                            <Button
+                              size="sm"
+                              className={`bg-${qluster.color}-600 hover:bg-${qluster.color}-700 text-white`}
+                            >
+                              Gestionar
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+
+              {/* Card para crear nuevo qluster */}
+              <Card className="border-dashed border-2 border-purple-900/50 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center h-full">
+                <Rocket className="h-12 w-12 text-purple-500/50 mb-4" />
+                <h3 className="text-lg font-medium text-purple-300 mb-2">Crear Nuevo Qluster</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Diseña un bloque temático que agrupe Qerniums con objetivos comunes
+                </p>
+                <Link href="/dashboard/qlusters/create">
+                  <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white">
+                    <Plus className="mr-2 h-4 w-4" /> Nuevo Qluster
+                  </Button>
+                </Link>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Contenido para las otras pestañas (active, scheduled, draft) */}
+          {/* Similar al contenido de "all" pero filtrado por status */}
+        </Tabs>
+      </DashboardShell>
+    </>
+  )
+}

@@ -50,6 +50,7 @@ export const qorePlex = pgTable("qore_plex", {
   description: text("description"),
   code: text("code").notNull(),
   color: text("color").default("purple"),
+  coverImage: text("cover_image"), // Imagen de portada
   creatorId: uuid("creator_id").references(() => users.id),
   institutionId: uuid("institution_id").references(() => institutions.id),
   createdAt: timestamp("created_at").defaultNow(),
@@ -66,6 +67,7 @@ export const qernex = pgTable("qernex", {
   description: text("description"),
   code: text("code").notNull(),
   color: text("color").default("cyan"),
+  coverImage: text("cover_image"), // Imagen de portada
   creatorId: uuid("creator_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -84,6 +86,7 @@ export const qlusters = pgTable("qlusters", {
   status: qlusterStatusEnum("status").default("draft"),
   visibility: qlusterVisibilityEnum("visibility").default("private"),
   color: text("color").default("purple"),
+  coverImage: text("cover_image"), // Imagen de portada
   autoEnroll: boolean("auto_enroll").default(false),
   sequentialProgress: boolean("sequential_progress").default(false),
   certificate: boolean("certificate").default(false),
@@ -98,6 +101,7 @@ export const skills = pgTable("skills", {
   name: text("name").notNull(),
   description: text("description"),
   color: text("color").default("purple"),
+  coverImage: text("cover_image"), // Imagen de portada
   institutionId: uuid("institution_id").references(() => institutions.id),
   creatorId: uuid("creator_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
@@ -127,6 +131,7 @@ export const qerniums = pgTable("qerniums", {
   status: qerniumStatusEnum("status").default("draft"),
   estimatedTime: integer("estimated_time"), // Tiempo estimado en minutos
   prerequisites: json("prerequisites"), // Array de IDs de Qerniums prerequisitos
+  coverImage: text("cover_image"), // Imagen de portada
   creatorId: uuid("creator_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -156,6 +161,7 @@ export const contents = pgTable("contents", {
   type: contentTypeEnum("type").notNull(),
   content: json("content"),
   order: integer("order").notNull(),
+  coverImage: text("cover_image"), // Imagen de portada para contenidos
   creatorId: uuid("creator_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -287,6 +293,7 @@ export const modules = pgTable("modules", {
   title: text("title").notNull(),
   description: text("description"),
   order: integer("order").notNull(),
+  coverImage: text("cover_image"), // Imagen de portada para módulos
   creatorId: uuid("creator_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

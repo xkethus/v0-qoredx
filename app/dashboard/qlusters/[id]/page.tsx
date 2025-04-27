@@ -27,6 +27,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 export default function QlusterDetailPage({ params }: { params: { id: string } }) {
   // Mock data for a qluster
@@ -397,7 +398,10 @@ export default function QlusterDetailPage({ params }: { params: { id: string } }
                                 <td className="p-4 align-middle">
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-9 w-9 border border-cyan-900/50">
-                                      <AvatarImage src={`/placeholder.svg?height=36&width=36`} alt={student.name} />
+                                      <AvatarImage
+                                        src={`/generic-placeholder-pattern.png?key=nfoeo&height=36&width=36`}
+                                        alt={student.name}
+                                      />
                                       <AvatarFallback className="bg-cyan-950/50 text-cyan-300">
                                         {student.name
                                           .split(" ")
@@ -518,6 +522,15 @@ export default function QlusterDetailPage({ params }: { params: { id: string } }
                   className="w-full justify-start border-cyan-900/50 text-cyan-300 hover:bg-cyan-900/20"
                 >
                   <Plus className="mr-2 h-4 w-4" /> Añadir Qernium
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start border-purple-900/50 text-purple-300 hover:bg-purple-900/20"
+                  asChild
+                >
+                  <Link href="/dashboard/qerniums/preview">
+                    <Eye className="mr-2 h-4 w-4" /> Vista Previa de Qerniums
+                  </Link>
                 </Button>
                 <Button
                   variant="outline"

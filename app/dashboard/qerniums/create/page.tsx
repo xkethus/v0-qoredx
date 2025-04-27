@@ -10,15 +10,17 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Brain, Clock, Save, Sparkles, Plus, Minus, Lightbulb } from "lucide-react"
+import { Brain, Clock, Save, Sparkles, Plus, Minus, Lightbulb, ImageIcon } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
+import { CoverImageUpload } from "@/components/cover-image-upload"
 
 export default function CreateQerniumPage() {
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("basic")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [coverImage, setCoverImage] = useState<string | null>(null)
   const [qernium, setQernium] = useState({
     title: "",
     description: "",
@@ -200,6 +202,7 @@ export default function CreateQerniumPage() {
       console.log("Guardando Qernium:", {
         ...qernium,
         assignedSkills,
+        coverImage,
       })
 
       // Simulamos éxito
@@ -219,6 +222,7 @@ export default function CreateQerniumPage() {
         estimatedTime: 30,
       })
       setAssignedSkills([])
+      setCoverImage(null)
       setActiveTab("basic")
     } catch (error) {
       toast({
@@ -268,6 +272,12 @@ export default function CreateQerniumPage() {
               className="data-[state=active]:bg-purple-900/20 data-[state=active]:text-purple-300"
             >
               Habilidades
+            </TabsTrigger>
+            <TabsTrigger
+              value="appearance"
+              className="data-[state=active]:bg-purple-900/20 data-[state=active]:text-purple-300"
+            >
+              Apariencia
             </TabsTrigger>
           </TabsList>
 
@@ -535,6 +545,37 @@ export default function CreateQerniumPage() {
                       })}
                     </div>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appearance" className="space-y-4">
+            <Card className="border-purple-900/50 bg-black/50 backdrop-blur-sm shadow-[0_0_15px_rgba(139,92,246,0.1)]">
+              <CardHeader>
+                <CardTitle className="text-xl text-purple-300">Apariencia del Qernium</CardTitle>
+                <CardDescription>Personaliza cómo se verá este qernium</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label>Imagen de Portada</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Sube una imagen que represente el contenido de este qernium
+                  </p>
+                  <CoverImageUpload initialImage={coverImage} onImageChange={setCoverImage} aspectRatio="landscape" />
+                </div>
+
+                <div className="p-4 border border-purple-900/30 rounded-md bg-purple-950/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ImageIcon className="h-4 w-4 text-purple-300" />
+                    <span className="text-sm font-medium">Recomendaciones para la imagen</span>
+                  </div>
+                  <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+                    <li>Usa imágenes de alta calidad relacionadas con el tema del qernium</li>
+                    <li>Dimensiones recomendadas: 1200 x 600 píxeles</li>
+                    <li>Formatos aceptados: JPG, PNG, WebP</li>
+                    <li>Tamaño máximo: 5MB</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>

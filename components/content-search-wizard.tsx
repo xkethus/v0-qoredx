@@ -1,27 +1,30 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileText, Video, BookOpen, LinkIcon, Search, Filter } from "lucide-react"
+import { FileText, Video, BookOpen, LinkIcon, Search, Filter, Copy, Eye } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
 
-interface ContentSearchModalProps {
+interface ContentSearchWizardProps {
   isOpen: boolean
   onClose: () => void
-  onSelect: (content: any) => void
+  onSelect: (content: any, action: "clone" | "view") => void
 }
 
-export function ContentSearchModal({ isOpen, onClose, onSelect }: ContentSearchModalProps) {
+export function ContentSearchWizard({ isOpen, onClose, onSelect }: ContentSearchWizardProps) {
+  const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
   const [sortBy, setSortBy] = useState("recent")
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedContent, setSelectedContent] = useState<any>(null)
 
   // Mock data para contenidos
   const mockContents = [
@@ -125,6 +128,49 @@ export function ContentSearchModal({ isOpen, onClose, onSelect }: ContentSearchM
     }
   }
 
+  // Función para manejar la selección de contenido
+  const handleContentSelect = (content: any) => {
+    setSelectedContent(content)
+  }
+
+  // Función para clonar el contenido seleccionado
+  const handleClone = () => {
+    if (!selectedContent) {
+      toast({
+        title: "Error",
+        description: "Por favor, selecciona un contenido primero",
+        variant: "destructive",
+      })
+      return
+    }
+
+    onSelect(selectedContent, "clone")
+    toast({
+      title: "Contenido clonado",
+      description: `Has clonado "${selectedContent.title}"`,
+    })
+    onClose()
+  }
+
+  // Función para ver el contenido seleccionado
+  const handleView = () => {
+    if (!selectedContent) {
+      toast({
+        title: "Error",
+        description: "Por favor, selecciona un contenido primero",
+        variant: "destructive",
+      })
+      return
+    }
+
+    onSelect(selectedContent, "view")
+    toast({
+      title: "Abriendo contenido",
+      description: `Abriendo "${selectedContent.title}" para edición`,
+    })
+    onClose()
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[700px] bg-black/90 border-purple-900/50">
@@ -226,8 +272,12 @@ export function ContentSearchModal({ isOpen, onClose, onSelect }: ContentSearchM
                     {sortedContents.map((content) => (
                       <div
                         key={content.id}
-                        className="p-3 border border-purple-900/50 rounded-md bg-black/50 hover:bg-purple-900/10 cursor-pointer transition-colors"
-                        onClick={() => onSelect(content)}
+                        className={`p-3 border rounded-md bg-black/50 hover:bg-purple-900/10 cursor-pointer transition-colors ${
+                          selectedContent?.id === content.id
+                            ? "border-purple-500 bg-purple-900/20"
+                            : "border-purple-900/50"
+                        }`}
+                        onClick={() => handleContentSelect(content)}
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-2">
@@ -254,6 +304,29 @@ export function ContentSearchModal({ isOpen, onClose, onSelect }: ContentSearchM
             </TabsContent>
           </Tabs>
         </div>
+
+        <DialogFooter className="flex justify-between">
+          <Button variant="outline" onClick={onClose} className="border-purple-900/50 hover:bg-purple-900/20">
+            Cancelar
+          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleView}
+              disabled={!selectedContent}
+              className="border-cyan-900/50 hover:bg-cyan-900/20 text-cyan-300"
+            >
+              <Eye className="mr-2 h-4 w-4" /> Ver / Editar
+            </Button>
+            <Button
+              onClick={handleClone}
+              disabled={!selectedContent}
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600"
+            >
+              <Copy className="mr-2 h-4 w-4" /> Clonar
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

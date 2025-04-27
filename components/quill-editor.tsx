@@ -1,131 +1,173 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import "quill/dist/quill.snow.css"
+import Script from "next/script"
 
 interface QuillEditorProps {
   value: string
   onChange: (value: string) => void
   theme?: "spacepunk" | "default"
+  placeholder?: string
+  key?: string // Añadimos key como prop para forzar remontaje
 }
 
-export default function QuillEditor({ value, onChange, theme = "default" }: QuillEditorProps) {
+export default function QuillEditor({
+  value,
+  onChange,
+  theme = "default",
+  placeholder = "Comienza a escribir tu contenido aquí...",
+}: QuillEditorProps) {
+  // Referencias y estados
   const editorRef = useRef<HTMLDivElement>(null)
   const quillRef = useRef<any>(null)
-  const [isReady, setIsReady] = useState(false)
-  const [isQuillLoaded, setIsQuillLoaded] = useState(false)
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false)
+  const [isEditorReady, setIsEditorReady] = useState(false)
+  const [editorId] = useState(`quill-editor-${Math.random().toString(36).substring(2, 9)}`)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Asegurarse de que el componente solo se inicialice en el cliente
+  // Detectar cuando el script de Quill está cargado
+  const handleScriptLoad = () => {
+    console.log("Quill script loaded")
+    setIsScriptLoaded(true)
+  }
+
+  // Detectar visibilidad del componente
   useEffect(() => {
-    setIsReady(true)
+    if (!editorRef.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.1 },
+    )
+
+    observer.observe(editorRef.current)
+
+    return () => {
+      if (editorRef.current) {
+        observer.unobserve(editorRef.current)
+      }
+    }
   }, [])
 
-  // Inicializar Quill cuando el componente esté listo
+  // Limpiar Quill al desmontar
   useEffect(() => {
-    if (!isReady || !editorRef.current || quillRef.current) return
-
-    // Importar Quill dinámicamente
-    const initQuill = async () => {
-      try {
-        // Importar Quill con un pequeño retraso para asegurar que el DOM esté listo
-        setTimeout(async () => {
-          try {
-            const QuillModule = await import("quill")
-            const Quill = QuillModule.default
-
-            // Verificar que el contenedor sigue existiendo
-            if (!editorRef.current) {
-              console.warn("Quill container no longer exists")
-              return
-            }
-
-            // Configurar los temas personalizados
-            const spacepunkTheme = {
-              modules: {
-                toolbar: [
-                  [{ header: [1, 2, 3, false] }],
-                  ["bold", "italic", "underline", "strike"],
-                  [{ color: [] }, { background: [] }],
-                  [{ list: "ordered" }, { list: "bullet" }],
-                  ["link", "image", "code-block"],
-                  ["clean"],
-                ],
-              },
-              placeholder: "Comienza a escribir tu contenido aquí...",
-              theme: "snow",
-            }
-
-            const defaultTheme = {
-              modules: {
-                toolbar: [
-                  [{ header: [1, 2, 3, false] }],
-                  ["bold", "italic", "underline"],
-                  ["link", "image"],
-                  ["clean"],
-                ],
-              },
-              placeholder: "Comienza a escribir tu contenido aquí...",
-              theme: "snow",
-            }
-
-            // Crear nueva instancia de Quill
-            quillRef.current = new Quill(editorRef.current, theme === "spacepunk" ? spacepunkTheme : defaultTheme)
-
-            // Establecer el contenido inicial
-            if (value) {
-              quillRef.current.root.innerHTML = value
-            }
-
-            // Manejar cambios
-            quillRef.current.on("text-change", () => {
-              const html = quillRef.current.root.innerHTML
-              onChange(html)
-            })
-
-            // Personalizar los estilos para el tema spacepunk
-            if (theme === "spacepunk" && editorRef.current) {
-              const editorElement = editorRef.current.querySelector(".ql-editor")
-              if (editorElement) {
-                editorElement.classList.add("spacepunk-editor")
-              }
-            }
-
-            setIsQuillLoaded(true)
-            console.log("Quill initialized successfully")
-          } catch (error) {
-            console.error("Error during Quill initialization:", error)
-          }
-        }, 100)
-      } catch (error) {
-        console.error("Error importing Quill:", error)
-      }
-    }
-
-    initQuill()
-
-    // Cleanup function
     return () => {
       if (quillRef.current) {
-        // Intentar limpiar correctamente
-        try {
-          // No llamamos a destroy explícitamente para evitar errores
-          quillRef.current = null
-        } catch (e) {
-          console.error("Error cleaning up Quill:", e)
-        }
+        console.log("Cleaning up Quill instance")
+        quillRef.current = null
+        setIsInitialized(false)
+        setIsEditorReady(false)
       }
     }
-  }, [isReady, theme, onChange])
+  }, [])
+
+  // Inicializar Quill cuando todo esté listo
+  useEffect(() => {
+    // Solo inicializar si el script está cargado, el componente es visible y no está ya inicializado
+    if (!isScriptLoaded || !isVisible || isInitialized) return
+
+    console.log("Attempting to initialize Quill")
+
+    const initializeQuill = () => {
+      try {
+        // Verificar que Quill está disponible
+        const Quill = (window as any).Quill
+        if (!Quill) {
+          console.error("Quill is not available")
+          return false
+        }
+
+        // Verificar que el elemento del editor existe
+        const editorElement = document.getElementById(editorId)
+        if (!editorElement) {
+          console.error("Editor element not found:", editorId)
+          return false
+        }
+
+        // Configuración completa para el editor
+        const editorConfig = {
+          modules: {
+            toolbar: [
+              [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{ font: [] }],
+              [{ size: ["small", false, "large", "huge"] }],
+              ["bold", "italic", "underline", "strike"],
+              [{ color: [] }, { background: [] }],
+              [{ align: [] }],
+              [{ list: "ordered" }, { list: "bullet" }],
+              [{ indent: "-1" }, { indent: "+1" }],
+              [{ direction: "rtl" }],
+              ["blockquote", "code-block"],
+              ["link", "image", "video"],
+              ["clean"],
+            ],
+          },
+          placeholder,
+          theme: "snow",
+        }
+
+        // Crear nueva instancia de Quill
+        quillRef.current = new Quill(editorElement, editorConfig)
+
+        // Establecer el contenido inicial
+        if (value) {
+          quillRef.current.root.innerHTML = value
+        }
+
+        // Manejar cambios
+        quillRef.current.on("text-change", () => {
+          const html = quillRef.current.root.innerHTML
+          onChange(html)
+        })
+
+        // Personalizar los estilos para el tema spacepunk
+        if (theme === "spacepunk" && editorElement) {
+          const editorContent = editorElement.querySelector(".ql-editor")
+          if (editorContent) {
+            editorContent.classList.add("spacepunk-editor")
+          }
+        }
+
+        console.log("Quill initialized successfully")
+        setIsInitialized(true)
+        setIsEditorReady(true)
+        return true
+      } catch (error) {
+        console.error("Error initializing Quill:", error)
+        return false
+      }
+    }
+
+    // Intentar inicializar con reintento
+    const attemptInitialization = () => {
+      const success = initializeQuill()
+      if (!success) {
+        // Reintentar después de un breve retraso
+        setTimeout(attemptInitialization, 200)
+      }
+    }
+
+    // Comenzar el proceso de inicialización
+    attemptInitialization()
+  }, [isScriptLoaded, isVisible, value, onChange, placeholder, theme, editorId, isInitialized])
 
   // Actualizar el contenido cuando cambia el valor desde fuera
   useEffect(() => {
-    if (quillRef.current && isQuillLoaded && value !== quillRef.current.root.innerHTML) {
+    if (quillRef.current && isEditorReady && value !== quillRef.current.root.innerHTML) {
       quillRef.current.root.innerHTML = value
     }
-  }, [value, isQuillLoaded])
+  }, [value, isEditorReady])
 
   return (
     <div className="quill-container">
+      {/* Cargar Quill desde CDN */}
+      <Script src="https://cdn.quilljs.com/1.3.6/quill.min.js" onLoad={handleScriptLoad} strategy="afterInteractive" />
+      <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
+
       <style jsx global>{`
         .quill-container .ql-toolbar {
           background-color: rgba(0, 0, 0, 0.5);
@@ -168,12 +210,44 @@ export default function QuillEditor({ value, onChange, theme = "default" }: Quil
           background-color: rgba(0, 0, 0, 0.9);
           border-color: rgba(139, 92, 246, 0.5);
         }
+        
+        /* Estilos adicionales para mejorar la apariencia del editor */
+        .quill-container .ql-snow .ql-tooltip {
+          background-color: rgba(0, 0, 0, 0.8);
+          border-color: rgba(139, 92, 246, 0.5);
+          color: #e2e8f0;
+        }
+        
+        .quill-container .ql-snow .ql-tooltip input[type=text] {
+          background-color: rgba(0, 0, 0, 0.5);
+          border-color: rgba(139, 92, 246, 0.5);
+          color: #e2e8f0;
+        }
+        
+        .quill-container .ql-snow .ql-tooltip a.ql-action,
+        .quill-container .ql-snow .ql-tooltip a.ql-remove {
+          color: #a78bfa;
+        }
+        
+        .quill-container .ql-snow .ql-picker.ql-expanded .ql-picker-options {
+          background-color: rgba(0, 0, 0, 0.9);
+          border-color: rgba(139, 92, 246, 0.5);
+        }
+        
+        .quill-container .ql-snow .ql-picker.ql-expanded .ql-picker-label {
+          border-color: rgba(139, 92, 246, 0.5);
+        }
       `}</style>
-      {/* Añadir un div con altura y borde antes de que Quill se inicialice */}
-      <div
-        ref={editorRef}
-        className={!isQuillLoaded ? "min-h-[300px] border border-purple-900/50 bg-black/50 rounded-md p-4" : ""}
-      />
+
+      {/* Contenedor del editor con ID único */}
+      <div ref={editorRef} className="relative min-h-[300px]">
+        {!isEditorReady && (
+          <div className="absolute inset-0 border border-purple-900/50 bg-black/50 rounded-md p-4 flex items-center justify-center z-10">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-purple-500 border-t-transparent"></div>
+          </div>
+        )}
+        <div id={editorId} className="min-h-[300px]"></div>
+      </div>
     </div>
   )
 }

@@ -32,6 +32,9 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { HierarchyVisualization } from "@/components/hierarchy-visualization"
 import { useState } from "react"
+import { QerniumPreviewModal } from "@/components/qernium-preview-modal"
+import Link from "next/link"
+import type { QerniumData } from "@/components/qernium-viewer"
 
 export default function CourseDetailPage({ params }: { params: { id: string } }) {
   // Mock data para la visualización jerárquica
@@ -159,7 +162,7 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
           { id: 8, type: "document", title: "Geología Planetaria", completed: false },
           { id: 9, type: "video", title: "Misiones a Marte", completed: false },
           { id: 10, type: "document", title: "Exploración de Lunas de Júpiter", completed: false },
-          { id: 11, type: "quiz", title: "Evaluación Final", completed: false },
+          { id: 11, type: "assignment", title: "Diseño de Misión a Marte", completed: false },
         ],
       },
     ],
@@ -176,6 +179,154 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
   }
 
   const [selectedNode, setSelectedNode] = useState(null)
+  const [selectedQernium, setSelectedQernium] = useState<QerniumData | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+
+  // Función para crear un objeto QerniumData completo basado en el tipo de contenido
+  const createMockQernium = (content: any): QerniumData => {
+    // Determinar el nivel de Bloom y verbo de acción según el tipo
+    const bloomLevel =
+      content.type === "document"
+        ? "remember"
+        : content.type === "video"
+          ? "understand"
+          : content.type === "quiz"
+            ? "apply"
+            : "create"
+
+    const actionVerb =
+      content.type === "document"
+        ? "Identificar"
+        : content.type === "video"
+          ? "Explicar"
+          : content.type === "quiz"
+            ? "Aplicar"
+            : "Diseñar"
+
+    // Crear contenido específico según el tipo
+    const qerniumContent: any = {
+      type: content.type,
+      title: content.title,
+    }
+
+    // Añadir propiedades específicas según el tipo
+    if (content.type === "document") {
+      qerniumContent.content = `
+        <h2>${content.title}</h2>
+        <p>Este es un documento de ejemplo que explica conceptos fundamentales sobre ${content.title}.</p>
+        <h3>Secciones principales</h3>
+        <ul>
+          <li>Introducción a ${content.title}</li>
+          <li>Conceptos clave</li>
+          <li>Aplicaciones prácticas</li>
+          <li>Conclusiones</li>
+        </ul>
+        <p>El contenido completo estará disponible en la versión final.</p>
+      `
+      qerniumContent.attachments = [{ name: "Material complementario.pdf", url: "#", type: "pdf" }]
+    } else if (content.type === "video") {
+      qerniumContent.videoUrl = "https://example.com/videos/sample.mp4"
+      qerniumContent.duration = "25:30"
+      qerniumContent.transcript = `
+        [00:00] Introducción a ${content.title}
+        [02:15] Conceptos fundamentales
+        [10:30] Demostraciones prácticas
+        [18:45] Resumen y conclusiones
+      `
+    } else if (content.type === "quiz") {
+      qerniumContent.description = `Evaluación sobre ${content.title}`
+      qerniumContent.questions = [
+        {
+          id: "q1",
+          question: `¿Cuál es el principio fundamental de ${content.title}?`,
+          options: [
+            { id: "q1a", text: "Opción A", isCorrect: false },
+            { id: "q1b", text: "Opción B", isCorrect: true },
+            { id: "q1c", text: "Opción C", isCorrect: false },
+          ],
+          type: "single",
+          points: 10,
+        },
+        {
+          id: "q2",
+          question: "Selecciona todos los conceptos relacionados:",
+          options: [
+            { id: "q2a", text: "Concepto 1", isCorrect: true },
+            { id: "q2b", text: "Concepto 2", isCorrect: false },
+            { id: "q2c", text: "Concepto 3", isCorrect: true },
+          ],
+          type: "multiple",
+          points: 15,
+        },
+      ]
+      qerniumContent.timeLimit = 30
+      qerniumContent.passingScore = 70
+    } else if (content.type === "assignment") {
+      qerniumContent.description = `Tarea práctica sobre ${content.title}`
+      qerniumContent.instructions = `
+        # Instrucciones para ${content.title}
+        
+        ## Objetivo
+        Aplicar los conceptos aprendidos sobre ${content.title} en un proyecto práctico.
+        
+        ## Requisitos
+        1. Investigación preliminar
+        2. Desarrollo del proyecto
+        3. Documentación
+        4. Presentación de resultados
+        
+        ## Criterios de evaluación
+        - Comprensión de conceptos (30%)
+        - Aplicación práctica (40%)
+        - Creatividad (20%)
+        - Presentación (10%)
+      `
+      qerniumContent.dueDate = "2025-05-30"
+      qerniumContent.attachments = [
+        { name: "Plantilla de entrega.docx", url: "#", type: "docx" },
+        { name: "Recursos adicionales.zip", url: "#", type: "zip" },
+      ]
+    }
+
+    // Crear y devolver el objeto QerniumData completo
+    return {
+      id: content.id.toString(),
+      title: content.title,
+      description: `${
+        content.type === "document"
+          ? "Documento sobre"
+          : content.type === "video"
+            ? "Video explicativo sobre"
+            : content.type === "quiz"
+              ? "Evaluación de"
+              : "Tarea práctica sobre"
+      } ${content.title}`,
+      bloomLevel: bloomLevel,
+      actionVerb: actionVerb,
+      estimatedTime: content.type === "assignment" ? 120 : content.type === "quiz" ? 45 : 30,
+      content: qerniumContent,
+      skills: [
+        {
+          id: "skill1",
+          subskillId: "subskill1",
+          subskillName: `Conocimiento de ${content.title}`,
+          skillName: "Competencia Técnica",
+          skillColor: "cyan",
+          level: 3,
+        },
+        {
+          id: "skill2",
+          subskillId: "subskill2",
+          subskillName: "Pensamiento analítico",
+          skillName: "Competencia Cognitiva",
+          skillColor: "purple",
+          level: 2,
+        },
+      ],
+      creatorId: "1",
+      creatorName: "Instructor",
+    }
+  }
 
   return (
     <>
@@ -184,9 +335,11 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
           <Button variant="outline" className="border-cyan-900/50 text-cyan-300 hover:bg-cyan-900/20">
             <Edit className="mr-2 h-4 w-4" /> Editar Qernex
           </Button>
-          <Button className="bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600">
-            <Eye className="mr-2 h-4 w-4" /> Vista Previa
-          </Button>
+          <Link href="/dashboard/qerniums/preview">
+            <Button className="bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600">
+              <Eye className="mr-2 h-4 w-4" /> Vista Previa
+            </Button>
+          </Link>
         </div>
       </DashboardHeader>
       <DashboardShell>
@@ -358,13 +511,21 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
                                   </Badge>
                                 )}
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 text-cyan-300 hover:bg-cyan-900/20 hover:text-cyan-200"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 text-cyan-300 hover:bg-cyan-900/20 hover:text-cyan-200"
+                                  onClick={() => {
+                                    // Crear un objeto QerniumData completo
+                                    const mockQernium = createMockQernium(content)
+                                    setSelectedQernium(mockQernium)
+                                    setIsPreviewOpen(true)
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -715,6 +876,8 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
           </div>
         </div>
       </DashboardShell>
+      {/* Modal de vista previa */}
+      <QerniumPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} qernium={selectedQernium} />
     </>
   )
 }

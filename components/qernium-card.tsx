@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Brain, MoreHorizontal, Zap, CuboidIcon as Cube } from "lucide-react"
+import { Brain, MoreHorizontal, Zap, CuboidIcon as Cube, Eye } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import Image from "next/image"
@@ -121,6 +121,11 @@ export function QerniumCard({ qernium }: QerniumCardProps) {
               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                 Ver Detalles
               </DropdownMenuItem>
+              <Link href={`/dashboard/qerniums/preview/${qernium.id}`} passHref>
+                <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
+                  Vista Previa
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                 Duplicar Qernium
               </DropdownMenuItem>
@@ -202,11 +207,22 @@ export function QerniumCard({ qernium }: QerniumCardProps) {
                 </span>
               )}
             </div>
-            <Link href={`/dashboard/qerniums/${qernium.id}`}>
-              <Button size="sm" className={`bg-${qernium.color}-600 hover:bg-${qernium.color}-700 text-white`}>
-                Gestionar
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href={`/dashboard/qerniums/preview/${qernium.id}`}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`border-${qernium.color}-900/50 text-${qernium.color}-300 hover:bg-${qernium.color}-900/20`}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href={`/dashboard/qerniums/${qernium.id}`}>
+                <Button size="sm" className={`bg-${qernium.color}-600 hover:bg-${qernium.color}-700 text-white`}>
+                  Gestionar
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </CardContent>

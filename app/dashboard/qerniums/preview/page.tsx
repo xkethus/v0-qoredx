@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,9 +11,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { QerniumPreviewModal } from "@/components/qernium-preview-modal"
 import type { QerniumData } from "@/components/qernium-viewer"
-import { Brain, Clock, Eye, FileText, Search, Video, BookOpen, Code } from "lucide-react"
+import { Brain, Clock, Eye, FileText, Search, Video, BookOpen, Code, ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 export default function QerniumPreviewPage() {
+  const searchParams = useSearchParams()
+  const qerniumId = searchParams.get("id")
+  const modalOpenedRef = useRef(false)
+
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
   const [selectedQernium, setSelectedQernium] = useState<QerniumData | null>(null)
@@ -323,8 +329,13 @@ export default function QerniumPreviewPage() {
     },
   ]
 
-  // Filtrar qerniums según la pestaña activa y la búsqueda
+  // Filtrar qerniums según la pestaña activa, la búsqueda y el ID si está presente
   const filteredQerniums = qerniums.filter((qernium) => {
+    // Si hay un ID específico, solo mostrar ese Qernium
+    if (qerniumId && qernium.id !== qerniumId) {
+      return false
+    }
+
     const matchesTab =
       activeTab === "all" ||
       (activeTab === "document" && qernium.content.type === "document") ||
@@ -338,6 +349,16 @@ export default function QerniumPreviewPage() {
 
     return matchesTab && matchesSearch
   })
+
+  // Si hay un ID específico y solo hay un Qernium filtrado, abrirlo automáticamente
+  // Pero solo una vez para evitar bucles infinitos
+  useEffect(() => {
+    if (qerniumId && filteredQerniums.length === 1 && !modalOpenedRef.current) {
+      modalOpenedRef.current = true
+      setSelectedQernium(filteredQerniums[0])
+      setIsPreviewOpen(true)
+    }
+  }, [qerniumId, filteredQerniums])
 
   // Función para obtener el color de fondo según el nivel de Bloom
   const getBloomLevelColor = (level: string) => {
@@ -385,12 +406,27 @@ export default function QerniumPreviewPage() {
     setIsPreviewOpen(true)
   }
 
+  // Función para cerrar el modal de vista previa
+  const closePreview = () => {
+    setIsPreviewOpen(false)
+    // Si estamos en una URL con ID, volver a la vista general
+    if (qerniumId) {
+      window.history.pushState({}, "", "/dashboard/qerniums/preview")
+    }
+  }
+
   return (
     <>
       <DashboardHeader
         heading="Vista Previa de Qerniums"
         text="Explora los diferentes tipos de Qerniums disponibles en el Qluster 'Fundamentos de la Exploración Espacial'"
-      />
+      >
+        <Link href="/dashboard/qlusters/1">
+          <Button variant="outline" className="border-purple-900/50 text-purple-300 hover:bg-purple-900/20">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Qluster
+          </Button>
+        </Link>
+      </DashboardHeader>
       <DashboardShell>
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -855,7 +891,7 @@ export default function QerniumPreviewPage() {
       </DashboardShell>
 
       {/* Modal de vista previa */}
-      <QerniumPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} qernium={selectedQernium} />
+      <QerniumPreviewModal isOpen={isPreviewOpen} onClose={closePreview} qernium={selectedQernium} />
     </>
   )
 }

@@ -12,19 +12,6 @@ export default function CoursesPage() {
   // Mock data for courses
   const courses = [
     {
-      id: 1,
-      title: "Fundamentos de Física Cuántica",
-      description: "Un curso introductorio a los principios de la física cuántica y sus aplicaciones.",
-      startDate: "2025-05-01",
-      endDate: "2025-08-15",
-      classes: ["QP101-A", "QP101-B"],
-      students: 42,
-      modules: 8,
-      progress: 0,
-      status: "scheduled",
-      color: "purple",
-    },
-    {
       id: 2,
       title: "Exploración Espacial Avanzada",
       description: "Técnicas y teorías modernas para la exploración del espacio profundo.",
@@ -36,6 +23,19 @@ export default function CoursesPage() {
       progress: 15,
       status: "active",
       color: "cyan",
+    },
+    {
+      id: 1,
+      title: "Fundamentos de Física Cuántica",
+      description: "Un curso introductorio a los principios de la física cuántica y sus aplicaciones.",
+      startDate: "2025-05-01",
+      endDate: "2025-08-15",
+      classes: ["QP101-A", "QP101-B"],
+      students: 42,
+      modules: 8,
+      progress: 0,
+      status: "scheduled",
+      color: "purple",
     },
     {
       id: 3,
@@ -67,10 +67,13 @@ export default function CoursesPage() {
 
   return (
     <>
-      <DashboardHeader heading="Creador de Cursos" text="Crea y gestiona cursos completos con contenido y asignaciones">
+      <DashboardHeader
+        heading="Creador de Qlusters"
+        text="Crea y gestiona Qlusters completos con contenido y asignaciones"
+      >
         <Link href="/dashboard/courses/create">
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600">
-            <Plus className="mr-2 h-4 w-4" /> Crear Curso
+            <Plus className="mr-2 h-4 w-4" /> Crear Qluster
           </Button>
         </Link>
       </DashboardHeader>
@@ -107,7 +110,7 @@ export default function CoursesPage() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Buscar cursos..."
+                placeholder="Buscar qlusters..."
                 className="w-full sm:w-[250px] pl-8 border-purple-900/50 bg-black/50 focus-visible:ring-purple-500"
               />
             </div>
@@ -159,16 +162,16 @@ export default function CoursesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="bg-black/90 border-purple-900/50">
                             <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                              Editar Curso
+                              Editar Qluster
                             </DropdownMenuItem>
                             <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                               Ver Detalles
                             </DropdownMenuItem>
                             <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                              Duplicar Curso
+                              Duplicar Qluster
                             </DropdownMenuItem>
                             <DropdownMenuItem className="text-red-400 focus:bg-red-900/20 focus:text-red-300">
-                              Eliminar Curso
+                              Eliminar Qluster
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -191,7 +194,7 @@ export default function CoursesPage() {
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
                               <Layers className={`h-4 w-4 ${textColor}`} />
-                              <span className="text-sm">Módulos:</span>
+                              <span className="text-sm">Qerniums:</span>
                             </div>
                             <span className="text-sm text-muted-foreground">{course.modules}</span>
                           </div>
@@ -218,7 +221,7 @@ export default function CoursesPage() {
                         {course.status !== "draft" && (
                           <div className="space-y-1">
                             <div className="flex justify-between text-xs">
-                              <span>Progreso del curso</span>
+                              <span>Progreso del qluster</span>
                               <span>{course.progress}%</span>
                             </div>
                             <div className="w-full bg-black/50 rounded-full h-2">
@@ -266,13 +269,13 @@ export default function CoursesPage() {
               {/* Card para crear nuevo curso */}
               <Card className="border-dashed border-2 border-purple-900/50 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center h-full">
                 <Rocket className="h-12 w-12 text-purple-500/50 mb-4" />
-                <h3 className="text-lg font-medium text-purple-300 mb-2">Crear Nuevo Curso</h3>
+                <h3 className="text-lg font-medium text-purple-300 mb-2">Crear Nuevo Qluster</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Diseña un curso completo con contenido y asignaciones
+                  Diseña un qluster completo con contenido y asignaciones
                 </p>
                 <Link href="/dashboard/courses/create">
                   <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white">
-                    <Plus className="mr-2 h-4 w-4" /> Nuevo Curso
+                    <Plus className="mr-2 h-4 w-4" /> Nuevo Qluster
                   </Button>
                 </Link>
               </Card>
@@ -324,16 +327,16 @@ export default function CoursesPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-black/90 border-purple-900/50">
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                                Editar Curso
+                                Editar Qluster
                               </DropdownMenuItem>
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                                 Ver Detalles
                               </DropdownMenuItem>
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                                Duplicar Curso
+                                Duplicar Qluster
                               </DropdownMenuItem>
                               <DropdownMenuItem className="text-red-400 focus:bg-red-900/20 focus:text-red-300">
-                                Eliminar Curso
+                                Eliminar Qluster
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -356,7 +359,7 @@ export default function CoursesPage() {
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
                                 <Layers className={`h-4 w-4 ${textColor}`} />
-                                <span className="text-sm">Módulos:</span>
+                                <span className="text-sm">Qerniums:</span>
                               </div>
                               <span className="text-sm text-muted-foreground">{course.modules}</span>
                             </div>
@@ -382,7 +385,7 @@ export default function CoursesPage() {
 
                           <div className="space-y-1">
                             <div className="flex justify-between text-xs">
-                              <span>Progreso del curso</span>
+                              <span>Progreso del qluster</span>
                               <span>{course.progress}%</span>
                             </div>
                             <div className="w-full bg-black/50 rounded-full h-2">
@@ -455,16 +458,16 @@ export default function CoursesPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-black/90 border-purple-900/50">
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                                Editar Curso
+                                Editar Qluster
                               </DropdownMenuItem>
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                                 Ver Detalles
                               </DropdownMenuItem>
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                                Duplicar Curso
+                                Duplicar Qluster
                               </DropdownMenuItem>
                               <DropdownMenuItem className="text-red-400 focus:bg-red-900/20 focus:text-red-300">
-                                Eliminar Curso
+                                Eliminar Qluster
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -487,7 +490,7 @@ export default function CoursesPage() {
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
                                 <Layers className={`h-4 w-4 ${textColor}`} />
-                                <span className="text-sm">Módulos:</span>
+                                <span className="text-sm">Qerniums:</span>
                               </div>
                               <span className="text-sm text-muted-foreground">{course.modules}</span>
                             </div>
@@ -573,16 +576,16 @@ export default function CoursesPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-black/90 border-purple-900/50">
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                                Editar Curso
+                                Editar Qluster
                               </DropdownMenuItem>
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                                 Ver Detalles
                               </DropdownMenuItem>
                               <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
-                                Duplicar Curso
+                                Duplicar Qluster
                               </DropdownMenuItem>
                               <DropdownMenuItem className="text-red-400 focus:bg-red-900/20 focus:text-red-300">
-                                Eliminar Curso
+                                Eliminar Qluster
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -605,7 +608,7 @@ export default function CoursesPage() {
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
                                 <Layers className={`h-4 w-4 ${textColor}`} />
-                                <span className="text-sm">Módulos:</span>
+                                <span className="text-sm">Qerniums:</span>
                               </div>
                               <span className="text-sm text-muted-foreground">{course.modules}</span>
                             </div>
@@ -653,13 +656,13 @@ export default function CoursesPage() {
               {/* Card para crear nuevo curso */}
               <Card className="border-dashed border-2 border-purple-900/50 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center h-full">
                 <Rocket className="h-12 w-12 text-purple-500/50 mb-4" />
-                <h3 className="text-lg font-medium text-purple-300 mb-2">Crear Nuevo Curso</h3>
+                <h3 className="text-lg font-medium text-purple-300 mb-2">Crear Nuevo Qluster</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Diseña un curso completo con contenido y asignaciones
+                  Diseña un qluster completo con contenido y asignaciones
                 </p>
                 <Link href="/dashboard/courses/create">
                   <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white">
-                    <Plus className="mr-2 h-4 w-4" /> Nuevo Curso
+                    <Plus className="mr-2 h-4 w-4" /> Nuevo Qluster
                   </Button>
                 </Link>
               </Card>

@@ -1,3 +1,5 @@
+"use client"
+
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu"
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -28,6 +30,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { QerniumPreviewModal } from "@/components/qernium-preview-modal"
+import type { QerniumData } from "@/components/qernium-viewer"
+import { useState } from "react"
 
 export default function QlusterDetailPage({ params }: { params: { id: string } }) {
   // Mock data for a qluster
@@ -141,6 +146,9 @@ export default function QlusterDetailPage({ params }: { params: { id: string } }
       },
     ],
   }
+
+  const [selectedQernium, setSelectedQernium] = useState<QerniumData | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   return (
     <>
@@ -637,6 +645,8 @@ export default function QlusterDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
       </DashboardShell>
+      {/* Modal de vista previa */}
+      <QerniumPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} qernium={selectedQernium} />
     </>
   )
 }

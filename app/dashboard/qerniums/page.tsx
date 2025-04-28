@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardShell } from "@/components/dashboard-shell"
-import { Atom, Search, Filter, MoreHorizontal, Plus, Brain, CuboidIcon as Cube, Zap } from "lucide-react"
+import { Atom, Search, Filter, MoreHorizontal, Plus, Brain, CuboidIcon as Cube, Zap, Eye } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
@@ -218,6 +218,11 @@ export default function QerniumsPage() {
                             <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                               Ver Detalles
                             </DropdownMenuItem>
+                            <Link href={`/dashboard/qerniums/preview/${qernium.id}`} passHref>
+                              <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
+                                Vista Previa
+                              </DropdownMenuItem>
+                            </Link>
                             <DropdownMenuItem className={`${textColor} ${bgHoverColor} focus:text-white`}>
                               Duplicar Qernium
                             </DropdownMenuItem>
@@ -295,14 +300,25 @@ export default function QerniumsPage() {
                               </span>
                             )}
                           </div>
-                          <Link href={`/dashboard/qerniums/${qernium.id}`}>
-                            <Button
-                              size="sm"
-                              className={`bg-${qernium.color}-600 hover:bg-${qernium.color}-700 text-white`}
-                            >
-                              Gestionar
-                            </Button>
-                          </Link>
+                          <div className="flex gap-2">
+                            <Link href={`/dashboard/qerniums/preview/${qernium.id}`}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className={`border-${qernium.color}-900/50 text-${qernium.color}-300 hover:bg-${qernium.color}-900/20`}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Link href={`/dashboard/qerniums/${qernium.id}`}>
+                              <Button
+                                size="sm"
+                                className={`bg-${qernium.color}-600 hover:bg-${qernium.color}-700 text-white`}
+                              >
+                                Gestionar
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </CardContent>

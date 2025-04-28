@@ -82,15 +82,26 @@ export default function HomePage() {
                     </div>
                   </form>
                 </CardContent>
-                <CardFooter className="flex justify-center">
-                  <Link href="/dashboard">
-                    <Button
-                      size="icon"
-                      className="h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 shadow-lg shadow-purple-700/30"
-                    >
-                      <Rocket className="h-6 w-6" />
-                    </Button>
-                  </Link>
+                <CardFooter className="flex flex-col items-center gap-4">
+                  <div className="w-full flex justify-center gap-3">
+                    <Link href="/dashboard">
+                      <Button
+                        size="sm"
+                        className="px-4 bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 shadow-md shadow-purple-700/30"
+                      >
+                        QoreMaster
+                      </Button>
+                    </Link>
+                    <Link href="/student/dashboard">
+                      <Button
+                        size="sm"
+                        className="px-4 bg-gradient-to-r from-cyan-500 to-pink-500 hover:from-cyan-600 hover:to-pink-600 shadow-md shadow-cyan-700/30"
+                      >
+                        QoreXplorer
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="text-xs text-gray-500">Selecciona tu rol para iniciar sesión</div>
                 </CardFooter>
               </Card>
             </TabsContent>

@@ -85,6 +85,7 @@
     "@neondatabase/serverless": "latest",
     "@cloudflare/workers-types": "latest",
     "@op-engineering/op-sqlite": "latest",
+    "@emotion/is-prop-valid": "latest",
     "expo": "latest",
     "expo-asset": "latest",
     "expo-file-system": "latest",
@@ -92,12 +93,11 @@
     "react-native": "latest",
     "three": "latest",
     "@react-three/fiber": "latest",
-    "@emotion/is-prop-valid": "latest",
     "drizzle-orm": "latest",
     "d3": "latest",
     "uuid": "latest",
-    "@react-three/drei": "latest",
-    "framer-motion": "latest"
+    "framer-motion": "latest",
+    "@react-three/drei": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

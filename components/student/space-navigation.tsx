@@ -416,10 +416,12 @@ function QerniumNode({ qernium, onHover, onLeave, onClick }) {
       {/* Only show label for available and completed qerniums */}
       {qernium.status === "published" && (
         <Html position={[0, 1, 0]} center distanceFactor={15} occlude>
-          <div
-            className={`px-1.5 py-0.5 rounded-full bg-black/80 border border-${qernium.status === "completed" ? "green" : qernium.color === "#22d3ee" ? "cyan" : qernium.color === "#ec4899" ? "pink" : qernium.color === "#a855f7" ? "purple" : "amber"}-500/50 text-${qernium.status === "completed" ? "green" : qernium.color === "#22d3ee" ? "cyan" : qernium.color === "#ec4899" ? "pink" : qernium.color === "#a855f7" ? "purple" : "amber"}-300 text-[10px] whitespace-nowrap`}
-          >
-            {qernium.title}
+          <div className="relative group">
+            <div
+              className={`absolute bottom-0 left-0 w-full p-2 bg-black/70 text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
+            >
+              {qernium.title}
+            </div>
           </div>
         </Html>
       )}

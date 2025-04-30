@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Rocket, BookOpen, Users, LogOut, Menu, X, Layers, Atom, LayoutDashboard, Sparkles } from "lucide-react"
+import { Rocket, Users, LogOut, Menu, X, Layers, Atom, LayoutDashboard, Sparkles } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -141,13 +141,13 @@ function DashboardSidebar() {
                     <span className="text-xs text-muted-foreground">professor@qoredx.com</span>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  className={`w-full justify-start mt-2 text-purple-300 hover:text-purple-50 hover:bg-purple-900/20 transition-opacity duration-300 ${isTextVisible ? "opacity-100" : "opacity-0"}`}
+                <Link
+                  href="/"
+                  className={`flex items-center w-full justify-start mt-2 text-purple-300 hover:text-purple-50 hover:bg-purple-900/20 transition-opacity duration-300 px-3 py-2 rounded-md ${isTextVisible ? "opacity-100" : "opacity-0"}`}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log Out
-                </Button>
+                </Link>
               </>
             ) : (
               <Avatar className="h-9 w-9 border border-purple-900/50">
@@ -176,32 +176,25 @@ function DashboardNav({ isCollapsed, isTextVisible }: { isCollapsed: boolean; is
       title: "Estudiantes",
       href: "/dashboard/classroom",
       icon: <Users className="h-4 w-4" />,
-      variant: "ghost",
+      variant: "default",
     },
     {
       title: "Qlusters",
       href: "/dashboard/qlusters",
       icon: <Layers className="h-4 w-4" />,
-      variant: "ghost",
+      variant: "default",
     },
     {
       title: "Qerniums",
       href: "/dashboard/qerniums",
       icon: <Atom className="h-4 w-4" />,
-      variant: "ghost",
-    },
-    {
-      title: "Contenidos",
-      href: "/dashboard/add-content",
-      icon: <BookOpen className="h-4 w-4" />,
-      variant: "ghost",
+      variant: "default",
     },
     {
       title: "Habilidades",
       href: "/dashboard/skills",
-      icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
-      variant: "ghost",
-      highlight: true, // Mantener el resaltado para que sea visible
+      icon: <Sparkles className="h-4 w-4" />,
+      variant: "default",
     },
     {
       title: "Admin",
@@ -223,7 +216,7 @@ function DashboardNav({ isCollapsed, isTextVisible }: { isCollapsed: boolean; is
           <circle cx="12" cy="12" r="3" />
         </svg>
       ),
-      variant: "ghost",
+      variant: "default",
     },
   ]
 
@@ -242,9 +235,7 @@ function DashboardNav({ isCollapsed, isTextVisible }: { isCollapsed: boolean; is
               }),
               isActive
                 ? "bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white"
-                : item.highlight
-                  ? "border border-yellow-500/50 text-yellow-400 hover:bg-yellow-900/20"
-                  : "hover:bg-purple-900/20 hover:text-purple-300",
+                : "hover:bg-purple-900/20 hover:text-purple-300",
               isCollapsed ? "justify-center" : "justify-start",
               "h-9",
             )}

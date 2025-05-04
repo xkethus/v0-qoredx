@@ -1,9 +1,12 @@
 "use server"
 
-import { neon } from "@neondatabase/serverless"
+import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
 
-const sql = neon(process.env.DATABASE_URL!)
+// Crear un cliente de Supabase para el servidor
+const supabaseUrl = process.env.SUPABASE_SUPABASE_NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseServiceKey = process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || ""
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 type ContentType = "document" | "video" | "quiz" | "assignment"
 
@@ -16,28 +19,36 @@ interface ContentData {
   order: number
 }
 
+// Reemplazar la función createContent
 export async function createContent(data: ContentData) {
   try {
     // En una implementación real, validaríamos los datos y manejaríamos errores específicos
     const { moduleId, title, description, type, content, order } = data
 
-    // Convertir el contenido a JSON para almacenarlo
-    const contentJson = JSON.stringify(content)
+    // Insertar el contenido en la base de datos usando Supabase
+    const { data: result, error } = await supabase
+      .from("contents")
+      .insert({
+        module_id: moduleId,
+        title,
+        description,
+        type,
+        content,
+        order,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .select("id")
+      .single()
 
-    // Insertar el contenido en la base de datos
-    const result = await sql`
-      INSERT INTO contents (module_id, title, description, type, content, "order", created_at, updated_at)
-      VALUES (${moduleId}, ${title}, ${description}, ${type}, ${contentJson}::jsonb, ${order}, NOW(), NOW())
-      RETURNING id
-    `
+    if (error) throw error
 
     // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/add-content")
     revalidatePath("/dashboard/courses")
 
     return {
       success: true,
-      contentId: result[0].id,
+      contentId: result.id,
     }
   } catch (error) {
     console.error("Error creating content:", error)
@@ -48,17 +59,20 @@ export async function createContent(data: ContentData) {
   }
 }
 
+// Reemplazar la función getContentByModule
 export async function getContentByModule(moduleId: string) {
   try {
-    const content = await sql`
-      SELECT * FROM contents
-      WHERE module_id = ${moduleId}
-      ORDER BY "order" ASC
-    `
+    const { data, error } = await supabase
+      .from("contents")
+      .select("*")
+      .eq("module_id", moduleId)
+      .order("order", { ascending: true })
+
+    if (error) throw error
 
     return {
       success: true,
-      content,
+      content: data,
     }
   } catch (error) {
     console.error("Error fetching content:", error)
@@ -69,23 +83,16 @@ export async function getContentByModule(moduleId: string) {
   }
 }
 
+// Reemplazar la función getContentById
 export async function getContentById(contentId: string) {
   try {
-    const content = await sql`
-      SELECT * FROM contents
-      WHERE id = ${contentId}
-    `
+    const { data, error } = await supabase.from("contents").select("*").eq("id", contentId).single()
 
-    if (content.length === 0) {
-      return {
-        success: false,
-        error: "Content not found",
-      }
-    }
+    if (error) throw error
 
     return {
       success: true,
-      content: content[0],
+      content: data,
     }
   } catch (error) {
     console.error("Error fetching content:", error)
@@ -96,6 +103,7 @@ export async function getContentById(contentId: string) {
   }
 }
 
+// Reemplazar la función updateContent
 export async function updateContent(contentId: string, data: Partial<ContentData>) {
   try {
     const { title, description, type, content, order } = data
@@ -106,29 +114,17 @@ export async function updateContent(contentId: string, data: Partial<ContentData
     if (title !== undefined) updateFields.title = title
     if (description !== undefined) updateFields.description = description
     if (type !== undefined) updateFields.type = type
-    if (content !== undefined) updateFields.content = JSON.stringify(content)
+    if (content !== undefined) updateFields.content = content
     if (order !== undefined) updateFields.order = order
 
-    updateFields.updated_at = "NOW()"
+    updateFields.updated_at = new Date()
 
-    // Construir la consulta SQL dinámicamente
-    const setClause = Object.entries(updateFields)
-      .map(([key, value]) => {
-        if (key === "content") return `"${key}" = ${value}::jsonb`
-        if (key === "updated_at") return `"${key}" = ${value}`
-        return `"${key}" = '${value}'`
-      })
-      .join(", ")
+    // Ejecutar la actualización con Supabase
+    const { error } = await supabase.from("contents").update(updateFields).eq("id", contentId)
 
-    // Ejecutar la consulta
-    await sql.raw(`
-      UPDATE contents
-      SET ${setClause}
-      WHERE id = '${contentId}'
-    `)
+    if (error) throw error
 
     // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/add-content")
     revalidatePath("/dashboard/courses")
 
     return {
@@ -143,15 +139,14 @@ export async function updateContent(contentId: string, data: Partial<ContentData
   }
 }
 
+// Reemplazar la función deleteContent
 export async function deleteContent(contentId: string) {
   try {
-    await sql`
-      DELETE FROM contents
-      WHERE id = ${contentId}
-    `
+    const { error } = await supabase.from("contents").delete().eq("id", contentId)
+
+    if (error) throw error
 
     // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/add-content")
     revalidatePath("/dashboard/courses")
 
     return {
@@ -166,7 +161,7 @@ export async function deleteContent(contentId: string) {
   }
 }
 
-// Nueva función para buscar contenido
+// Reemplazar la función searchContent
 export async function searchContent({
   term,
   type = "title",
@@ -179,55 +174,61 @@ export async function searchContent({
   typeFilter?: "document" | "video" | "quiz" | "assignment"
 }) {
   try {
-    let query = `
-      SELECT 
-        c.id, 
-        c.title, 
-        c.description, 
-        c.type, 
-        c.created_at as "createdAt",
-        u.name as "creatorName",
-        q.title as "courseName",
-        c.module_id as "moduleId"
-      FROM 
-        contents c
-      LEFT JOIN 
-        users u ON c.creator_id = u.id
-      LEFT JOIN 
-        modules m ON c.module_id = m.id
-      LEFT JOIN 
-        qlusters q ON m.qluster_id = q.id
-      WHERE 
-    `
+    let query = supabase.from("contents").select(`
+        id, 
+        title, 
+        description, 
+        type, 
+        created_at,
+        users!creator_id (name),
+        modules!module_id (
+          qlusters!qluster_id (title)
+        ),
+        module_id
+      `)
 
-    // Construir la condición de búsqueda según el tipo
+    // Aplicar filtros según el tipo de búsqueda
     if (type === "title") {
-      query += `c.title ILIKE '%${term}%'`
+      query = query.ilike("title", `%${term}%`)
     } else if (type === "id") {
-      query += `c.id::text ILIKE '%${term}%'`
+      query = query.ilike("id", `%${term}%`)
     } else if (type === "creator") {
-      query += `u.name ILIKE '%${term}%'`
+      query = query.ilike("users.name", `%${term}%`)
     } else if (type === "course") {
-      query += `q.title ILIKE '%${term}%'`
+      query = query.ilike("modules.qlusters.title", `%${term}%`)
     }
 
     // Añadir filtros adicionales si se proporcionan
     if (courseFilter) {
-      query += ` AND q.id = '${courseFilter}'`
+      query = query.eq("modules.qlusters.id", courseFilter)
     }
 
     if (typeFilter) {
-      query += ` AND c.type = '${typeFilter}'`
+      query = query.eq("type", typeFilter)
     }
 
     // Ordenar por fecha de creación (más reciente primero)
-    query += ` ORDER BY c.created_at DESC LIMIT 50`
+    query = query.order("created_at", { ascending: false }).limit(50)
 
-    const results = await sql.raw(query)
+    const { data, error } = await query
+
+    if (error) throw error
+
+    // Transformar los datos para que coincidan con el formato esperado
+    const formattedResults = data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      type: item.type,
+      createdAt: item.created_at,
+      creatorName: item.users?.name,
+      courseName: item.modules?.qlusters?.title,
+      moduleId: item.module_id,
+    }))
 
     return {
       success: true,
-      content: results.rows,
+      content: formattedResults,
     }
   } catch (error) {
     console.error("Error searching content:", error)
@@ -238,58 +239,43 @@ export async function searchContent({
   }
 }
 
-// Nueva función para clonar contenido
+// Reemplazar la función cloneContent
 export async function cloneContent(contentId: string, moduleId: string) {
   try {
     // Obtener el contenido original
-    const originalContent = await sql`
-      SELECT * FROM contents
-      WHERE id = ${contentId}
-    `
+    const { data: originalContent, error: fetchError } = await supabase
+      .from("contents")
+      .select("*")
+      .eq("id", contentId)
+      .single()
 
-    if (originalContent.length === 0) {
-      return {
-        success: false,
-        error: "Content not found",
-      }
-    }
-
-    const content = originalContent[0]
+    if (fetchError) throw fetchError
 
     // Insertar el contenido clonado
-    const result = await sql`
-      INSERT INTO contents (
-        module_id, 
-        title, 
-        description, 
-        type, 
-        content, 
-        "order", 
-        created_at, 
-        updated_at,
-        creator_id
-      )
-      VALUES (
-        ${moduleId}, 
-        ${content.title + " (Copia)"}, 
-        ${content.description}, 
-        ${content.type}, 
-        ${content.content}, 
-        ${content.order}, 
-        NOW(), 
-        NOW(),
-        ${content.creator_id}
-      )
-      RETURNING id
-    `
+    const { data: result, error: insertError } = await supabase
+      .from("contents")
+      .insert({
+        module_id: moduleId,
+        title: `${originalContent.title} (Copia)`,
+        description: originalContent.description,
+        type: originalContent.type,
+        content: originalContent.content,
+        order: originalContent.order,
+        created_at: new Date(),
+        updated_at: new Date(),
+        creator_id: originalContent.creator_id,
+      })
+      .select("id")
+      .single()
+
+    if (insertError) throw insertError
 
     // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/add-content")
     revalidatePath("/dashboard/courses")
 
     return {
       success: true,
-      contentId: result[0].id,
+      contentId: result.id,
     }
   } catch (error) {
     console.error("Error cloning content:", error)

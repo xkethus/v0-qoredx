@@ -97,6 +97,7 @@
     "d3": "latest",
     "uuid": "latest",
     "framer-motion": "latest",
+    "@supabase/supabase-js": "latest",
     "@react-three/drei": "latest"
   },
   "devDependencies": {

@@ -7,6 +7,7 @@ import { StudentSidebar } from "@/components/student/student-sidebar"
 import { QerniumPreviewModal } from "@/components/qernium-preview-modal"
 import { QlusterInfoModal } from "@/components/student/qluster-info-modal"
 import { AchievementNotification } from "@/components/student/achievement-notification"
+import { HUDToggleButton } from "@/components/student/hud-toggle-button"
 import { Button } from "@/components/ui/button"
 import { Rocket } from "lucide-react"
 
@@ -15,7 +16,8 @@ export default function StudentDashboardPage() {
   const [selectedQernium, setSelectedQernium] = useState(null)
   const [selectedQluster, setSelectedQluster] = useState(null)
   const [showAchievement, setShowAchievement] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true) // Sidebar abierto por defecto
+  const [showHUDTutorial, setShowHUDTutorial] = useState(false)
 
   // Mock achievement notification after 10 seconds
   useEffect(() => {
@@ -25,6 +27,14 @@ export default function StudentDashboardPage() {
 
     return () => clearTimeout(timer)
   }, [])
+
+  // Show HUD tutorial after intro
+  useEffect(() => {
+    if (!showIntro && !localStorage.getItem("hudTutorialSeen")) {
+      setShowHUDTutorial(true)
+      localStorage.setItem("hudTutorialSeen", "true")
+    }
+  }, [showIntro])
 
   // Handle node selection from 3D space
   const handleNodeSelect = (nodeType, nodeData) => {
@@ -70,6 +80,31 @@ export default function StudentDashboardPage() {
       <main className="w-full h-screen">
         <SpaceNavigation onNodeSelect={handleNodeSelect} />
       </main>
+
+      {/* HUD toggle button */}
+      <HUDToggleButton />
+
+      {/* HUD tutorial overlay */}
+      {showHUDTutorial && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
+          <div className="max-w-2xl bg-gray-900 border border-cyan-500 rounded-lg p-8 relative">
+            <h2 className="text-2xl font-bold text-cyan-300 mb-4">Tu Interfaz de Navegación Espacial</h2>
+            <div className="space-y-4 text-gray-300">
+              <p>Bienvenido a tu interfaz de navegación personalizada. Desde aquí podrás:</p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Ver el espacio educativo a través de la ventana principal</li>
+                <li>Interactuar con los controles holográficos para acceder a diferentes Qlusters</li>
+                <li>Personalizar los colores y apariencia de tu interfaz</li>
+                <li>Ocultar o mostrar la interfaz para una vista más limpia</li>
+              </ul>
+              <p>Esta interfaz es tu marco personal para explorar el cosmos del aprendizaje.</p>
+            </div>
+            <Button onClick={() => setShowHUDTutorial(false)} className="mt-6 bg-cyan-600 hover:bg-cyan-700 text-white">
+              Entendido
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {selectedQernium && (

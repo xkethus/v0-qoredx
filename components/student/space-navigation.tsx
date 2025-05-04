@@ -6,15 +6,19 @@ import { OrbitControls, Html, Stars } from "@react-three/drei"
 import { Vector3 } from "three"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Info, Atom, Layers } from "lucide-react"
+import { Info, Atom, Layers, Rocket, User, Map, Zap, Settings } from "lucide-react"
 import * as THREE from "three"
 import { mockQlusters, mockQerniums } from "@/lib/mock-data"
+import { useHUD } from "@/lib/contexts/hud-context"
 
 // Main component for the 3D space navigation
 export function SpaceNavigation({ onNodeSelect }) {
   const [hoveredNode, setHoveredNode] = useState(null)
   const [selectedNode, setSelectedNode] = useState(null)
   const [cameraTarget, setCameraTarget] = useState([0, 0, 0])
+  const [showCustomization, setShowCustomization] = useState(false)
+
+  const { showHUD, customizations, hudStyle, updateCustomization, updateHUDStyle } = useHUD()
 
   const handleNodeHover = (node, type) => {
     setHoveredNode({ ...node, type })
@@ -66,14 +70,18 @@ export function SpaceNavigation({ onNodeSelect }) {
     }
   }
 
+  const toggleCustomization = () => {
+    setShowCustomization(!showCustomization)
+  }
+
   return (
     <div className="w-full h-full relative">
-      <Canvas camera={{ position: [0, 0, 25], fov: 60 }}>
+      <Canvas shadows>
         <color attach="background" args={["#000000"]} />
+        <fog attach="fog" args={["#000000", 30, 50]} />
         <ambientLight intensity={0.2} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
 
+        {/* Main space scene with content */}
         <SpaceScene
           qlusters={mockQlusters}
           qerniums={mockQerniums}
@@ -83,19 +91,13 @@ export function SpaceNavigation({ onNodeSelect }) {
           cameraTarget={cameraTarget}
         />
 
-        <OrbitControls
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          minDistance={5}
-          maxDistance={100}
-          target={new Vector3(...cameraTarget)}
-        />
+        {/* Cockpit overlay - solo se muestra si showHUD es true */}
+        {showHUD && <CockpitOverlay customizations={customizations} assets={hudStyle} />}
       </Canvas>
 
       {/* Floating UI for node information */}
       {hoveredNode && (
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 max-w-md w-full">
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 max-w-md w-full z-10">
           <div className="relative">
             <div
               className={`absolute -inset-1 bg-gradient-to-r from-${hoveredNode.type === "qluster" ? "cyan" : "pink"}-500 to-${hoveredNode.type === "qluster" ? "blue" : "purple"}-500 rounded-lg blur opacity-75`}
@@ -186,11 +188,583 @@ export function SpaceNavigation({ onNodeSelect }) {
           </div>
         </div>
       )}
+
+      {/* Customization button */}
+      <Button
+        onClick={toggleCustomization}
+        className="absolute top-4 right-4 bg-black/70 border border-cyan-500 text-cyan-300 hover:bg-cyan-900/20 z-10"
+        size="sm"
+      >
+        <Settings className="h-4 w-4 mr-2" />
+        Personalizar
+      </Button>
+
+      {/* Customization panel */}
+      {showCustomization && (
+        <div className="absolute top-16 right-4 p-4 bg-black/80 backdrop-blur-sm border border-cyan-900/50 rounded-lg z-10 w-64">
+          <h3 className="text-cyan-300 font-bold mb-3">Personalizar HUD</h3>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h4 className="text-sm text-white">Colores</h4>
+              <div className="space-y-2">
+                <div>
+                  <label className="text-xs text-gray-300 block mb-1">Marco</label>
+                  <input
+                    type="color"
+                    value={customizations.frameColor}
+                    onChange={(e) => updateCustomization("frameColor", e.target.value)}
+                    className="w-full h-6 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-300 block mb-1">Consola</label>
+                  <input
+                    type="color"
+                    value={customizations.consoleColor}
+                    onChange={(e) => updateCustomization("consoleColor", e.target.value)}
+                    className="w-full h-6 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-300 block mb-1">Hologramas</label>
+                  <input
+                    type="color"
+                    value={customizations.hologramColor}
+                    onChange={(e) => updateCustomization("hologramColor", e.target.value)}
+                    className="w-full h-6 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-300 block mb-1">Luces</label>
+                  <input
+                    type="color"
+                    value={customizations.lightColor}
+                    onChange={(e) => updateCustomization("lightColor", e.target.value)}
+                    className="w-full h-6 rounded"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm text-white">Estilo de Marco</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => updateHUDStyle("frameStyle", "standard")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.frameStyle === "standard"
+                      ? "border-cyan-500 bg-cyan-900/30"
+                      : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Estándar</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("frameStyle", "minimal")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.frameStyle === "minimal" ? "border-cyan-500 bg-cyan-900/30" : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Minimalista</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("frameStyle", "tactical")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.frameStyle === "tactical"
+                      ? "border-cyan-500 bg-cyan-900/30"
+                      : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Táctico</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("frameStyle", "futuristic")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.frameStyle === "futuristic"
+                      ? "border-cyan-500 bg-cyan-900/30"
+                      : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Futurista</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm text-white">Estilo de Consola</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => updateHUDStyle("consoleStyle", "basic")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.consoleStyle === "basic" ? "border-cyan-500 bg-cyan-900/30" : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Básico</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("consoleStyle", "touch")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.consoleStyle === "touch" ? "border-cyan-500 bg-cyan-900/30" : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Táctil</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("consoleStyle", "hologram")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.consoleStyle === "hologram"
+                      ? "border-cyan-500 bg-cyan-900/30"
+                      : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Holograma</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("consoleStyle", "military")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.consoleStyle === "military"
+                      ? "border-cyan-500 bg-cyan-900/30"
+                      : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Militar</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm text-white">Estilo de Luces</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => updateHUDStyle("lightStyle", "standard")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.lightStyle === "standard"
+                      ? "border-cyan-500 bg-cyan-900/30"
+                      : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Estándar</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("lightStyle", "ambient")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.lightStyle === "ambient" ? "border-cyan-500 bg-cyan-900/30" : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Ambiental</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("lightStyle", "neon")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.lightStyle === "neon" ? "border-cyan-500 bg-cyan-900/30" : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Neón</div>
+                </button>
+                <button
+                  onClick={() => updateHUDStyle("lightStyle", "pulse")}
+                  className={`p-1 border rounded-md ${
+                    hudStyle.lightStyle === "pulse" ? "border-cyan-500 bg-cyan-900/30" : "border-gray-700 bg-black/50"
+                  }`}
+                >
+                  <div className="text-xs text-center">Pulsante</div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-// Scene component for the 3D space
+// Cockpit overlay component - this is the HUD that frames the content
+function CockpitOverlay({ customizations, assets }) {
+  const { size, camera } = useThree()
+  const aspect = size.width / size.height
+  const frameRef = useRef()
+
+  // Subtle frame movement to simulate cockpit feel
+  useFrame((state) => {
+    if (frameRef.current) {
+      const t = state.clock.getElapsedTime()
+      frameRef.current.rotation.z = Math.sin(t * 0.2) * 0.005
+      frameRef.current.rotation.x = Math.sin(t * 0.3) * 0.005
+    }
+  })
+
+  // Sample data for console displays
+  const consoleData = [
+    {
+      id: "physics",
+      name: "Física Cuántica",
+      icon: <Atom className="h-5 w-5" />,
+      color: "#22d3ee",
+    },
+    {
+      id: "space",
+      name: "Exploración Espacial",
+      icon: <Rocket className="h-5 w-5" />,
+      color: "#ec4899",
+    },
+    {
+      id: "ai",
+      name: "Inteligencia Artificial",
+      icon: <Zap className="h-5 w-5" />,
+      color: "#a855f7",
+    },
+    {
+      id: "profile",
+      name: "Perfil",
+      icon: <User className="h-5 w-5" />,
+      color: "#10b981",
+    },
+    {
+      id: "map",
+      name: "Mapa",
+      icon: <Map className="h-5 w-5" />,
+      color: "#f59e0b",
+    },
+  ]
+
+  // Render different frame styles
+  const renderFrame = () => {
+    switch (assets.frameStyle) {
+      case "minimal":
+        return (
+          <group>
+            {/* Top frame */}
+            <mesh position={[0, 1.8, -3]}>
+              <boxGeometry args={[4 * aspect, 0.05, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            {/* Bottom frame */}
+            <mesh position={[0, -1.8, -3]}>
+              <boxGeometry args={[4 * aspect, 0.05, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            {/* Left frame */}
+            <mesh position={[-2 * aspect, 0, -3]}>
+              <boxGeometry args={[0.05, 3.6, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            {/* Right frame */}
+            <mesh position={[2 * aspect, 0, -3]}>
+              <boxGeometry args={[0.05, 3.6, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+          </group>
+        )
+
+      case "tactical":
+        return (
+          <group>
+            {/* Corner pieces */}
+            <mesh position={[-2 * aspect + 0.2, 1.6, -3]}>
+              <boxGeometry args={[0.4, 0.05, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[-2 * aspect, 1.6 - 0.2, -3]}>
+              <boxGeometry args={[0.05, 0.4, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            <mesh position={[2 * aspect - 0.2, 1.6, -3]}>
+              <boxGeometry args={[0.4, 0.05, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[2 * aspect, 1.6 - 0.2, -3]}>
+              <boxGeometry args={[0.05, 0.4, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            <mesh position={[-2 * aspect + 0.2, -1.6, -3]}>
+              <boxGeometry args={[0.4, 0.05, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[-2 * aspect, -1.6 + 0.2, -3]}>
+              <boxGeometry args={[0.05, 0.4, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            <mesh position={[2 * aspect - 0.2, -1.6, -3]}>
+              <boxGeometry args={[0.4, 0.05, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[2 * aspect, -1.6 + 0.2, -3]}>
+              <boxGeometry args={[0.05, 0.4, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+
+            {/* Top and bottom indicators */}
+            <mesh position={[0, 1.8, -3]}>
+              <boxGeometry args={[1, 0.05, 0.1]} />
+              <meshStandardMaterial
+                color={customizations.consoleColor}
+                emissive={customizations.consoleColor}
+                emissiveIntensity={0.5}
+              />
+            </mesh>
+
+            <mesh position={[0, -1.8, -3]}>
+              <boxGeometry args={[1, 0.05, 0.1]} />
+              <meshStandardMaterial
+                color={customizations.consoleColor}
+                emissive={customizations.consoleColor}
+                emissiveIntensity={0.5}
+              />
+            </mesh>
+          </group>
+        )
+
+      case "futuristic":
+        return (
+          <group>
+            {/* Curved frame elements */}
+            <mesh position={[0, 1.8, -3]}>
+              <torusGeometry args={[2 * aspect, 0.05, 16, 32, Math.PI]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.8} roughness={0.2} />
+            </mesh>
+
+            <mesh position={[0, -1.8, -3]} rotation={[Math.PI, 0, 0]}>
+              <torusGeometry args={[2 * aspect, 0.05, 16, 32, Math.PI]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.8} roughness={0.2} />
+            </mesh>
+
+            {/* Side elements */}
+            <mesh position={[-2 * aspect, 0, -3]}>
+              <boxGeometry args={[0.05, 2, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.8} roughness={0.2} />
+            </mesh>
+
+            <mesh position={[2 * aspect, 0, -3]}>
+              <boxGeometry args={[0.05, 2, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.8} roughness={0.2} />
+            </mesh>
+
+            {/* Glowing elements */}
+            <mesh position={[-2 * aspect + 0.03, 0, -3]}>
+              <boxGeometry args={[0.01, 1.8, 0.12]} />
+              <meshStandardMaterial
+                color={customizations.hologramColor}
+                emissive={customizations.hologramColor}
+                emissiveIntensity={1}
+              />
+            </mesh>
+
+            <mesh position={[2 * aspect - 0.03, 0, -3]}>
+              <boxGeometry args={[0.01, 1.8, 0.12]} />
+              <meshStandardMaterial
+                color={customizations.hologramColor}
+                emissive={customizations.hologramColor}
+                emissiveIntensity={1}
+              />
+            </mesh>
+          </group>
+        )
+
+      default: // standard
+        return (
+          <group>
+            {/* Top frame */}
+            <mesh position={[0, 1.8, -3]}>
+              <boxGeometry args={[4 * aspect, 0.1, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.5} roughness={0.5} />
+            </mesh>
+
+            {/* Bottom frame with console */}
+            <mesh position={[0, -1.8, -3]}>
+              <boxGeometry args={[4 * aspect, 0.2, 0.3]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.5} roughness={0.5} />
+            </mesh>
+
+            {/* Left frame */}
+            <mesh position={[-2 * aspect, 0, -3]}>
+              <boxGeometry args={[0.1, 3.6, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.5} roughness={0.5} />
+            </mesh>
+
+            {/* Right frame */}
+            <mesh position={[2 * aspect, 0, -3]}>
+              <boxGeometry args={[0.1, 3.6, 0.1]} />
+              <meshStandardMaterial color={customizations.frameColor} metalness={0.5} roughness={0.5} />
+            </mesh>
+          </group>
+        )
+    }
+  }
+
+  // Render different console styles
+  const renderConsole = () => {
+    switch (assets.consoleStyle) {
+      case "touch":
+        return (
+          <group position={[0, -1.7, -3]}>
+            <mesh rotation={[Math.PI * 0.15, 0, 0]}>
+              <boxGeometry args={[2 * aspect, 0.05, 0.3]} />
+              <meshStandardMaterial color={customizations.consoleColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[0, 0.05, 0]} rotation={[Math.PI * 0.15, 0, 0]}>
+              <boxGeometry args={[1.8 * aspect, 0.01, 0.25]} />
+              <meshStandardMaterial
+                color={customizations.hologramColor}
+                emissive={customizations.hologramColor}
+                emissiveIntensity={0.5}
+                transparent={true}
+                opacity={0.7}
+              />
+            </mesh>
+          </group>
+        )
+      case "hologram":
+        return (
+          <group position={[0, -1.7, -3]}>
+            <mesh rotation={[Math.PI * 0.15, 0, 0]}>
+              <cylinderGeometry args={[0.8, 0.9, 0.1, 32]} />
+              <meshStandardMaterial color={customizations.consoleColor} metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[0, 0.2, 0]} rotation={[Math.PI * 0.15, 0, 0]}>
+              <sphereGeometry args={[0.3, 16, 16]} />
+              <meshStandardMaterial
+                color={customizations.hologramColor}
+                emissive={customizations.hologramColor}
+                emissiveIntensity={0.7}
+                transparent={true}
+                opacity={0.3}
+              />
+            </mesh>
+          </group>
+        )
+      case "military":
+        return (
+          <group position={[0, -1.7, -3]}>
+            <mesh rotation={[Math.PI * 0.15, 0, 0]}>
+              <boxGeometry args={[2 * aspect, 0.15, 0.3]} />
+              <meshStandardMaterial color={customizations.consoleColor} metalness={0.8} roughness={0.2} />
+            </mesh>
+            <mesh position={[-0.7 * aspect, 0.05, 0]} rotation={[Math.PI * 0.15, 0, 0]}>
+              <boxGeometry args={[0.3, 0.05, 0.15]} />
+              <meshStandardMaterial color="#333" metalness={0.8} roughness={0.2} />
+            </mesh>
+            <mesh position={[0.7 * aspect, 0.05, 0]} rotation={[Math.PI * 0.15, 0, 0]}>
+              <boxGeometry args={[0.3, 0.05, 0.15]} />
+              <meshStandardMaterial color="#333" metalness={0.8} roughness={0.2} />
+            </mesh>
+          </group>
+        )
+      default: // basic
+        return (
+          <mesh position={[0, -1.7, -3]} rotation={[Math.PI * 0.15, 0, 0]}>
+            <boxGeometry args={[2 * aspect, 0.1, 0.3]} />
+            <meshStandardMaterial color={customizations.consoleColor} metalness={0.7} roughness={0.3} />
+          </mesh>
+        )
+    }
+  }
+
+  // Render different light styles
+  const renderLights = () => {
+    switch (assets.lightStyle) {
+      case "ambient":
+        return (
+          <>
+            <ambientLight intensity={0.8} color={customizations.lightColor} />
+            <pointLight position={[0, 1, -2]} color={customizations.lightColor} intensity={0.5} />
+          </>
+        )
+      case "neon":
+        return (
+          <>
+            <pointLight position={[-1.5 * aspect, 1.5, -2]} color={customizations.lightColor} intensity={0.8} />
+            <pointLight position={[1.5 * aspect, 1.5, -2]} color={customizations.lightColor} intensity={0.8} />
+            <pointLight position={[0, -1.5, -2]} color="#ffffff" intensity={0.3} />
+          </>
+        )
+      case "pulse":
+        return (
+          <group>
+            <PulsingLight position={[-1.5 * aspect, 1.5, -2]} color={customizations.lightColor} />
+            <PulsingLight position={[1.5 * aspect, 1.5, -2]} color={customizations.lightColor} />
+            <pointLight position={[0, -1.5, -2]} color="#ffffff" intensity={0.3} />
+          </group>
+        )
+      default: // standard
+        return (
+          <>
+            <pointLight position={[-1.5 * aspect, 1.5, -2]} color={customizations.lightColor} intensity={0.5} />
+            <pointLight position={[1.5 * aspect, 1.5, -2]} color={customizations.lightColor} intensity={0.5} />
+            <pointLight position={[0, -1.5, -2]} color="#ffffff" intensity={0.3} />
+          </>
+        )
+    }
+  }
+
+  // Render console buttons
+  const renderConsoleButtons = () => {
+    return (
+      <group position={[0, -1.7, -2.9]}>
+        {consoleData.map((console, index) => {
+          const spacing = 0.6 * aspect
+          const xPos = (index - 2) * spacing
+
+          return (
+            <group key={console.id} position={[xPos, 0, 0]}>
+              <mesh>
+                <sphereGeometry args={[0.1, 16, 16]} />
+                <meshStandardMaterial
+                  color={console.color}
+                  emissive={console.color}
+                  emissiveIntensity={1}
+                  transparent={true}
+                  opacity={0.7}
+                />
+              </mesh>
+              <Html position={[0, -0.2, 0]} center>
+                <div className="text-xs text-white font-bold">{console.name}</div>
+              </Html>
+            </group>
+          )
+        })}
+      </group>
+    )
+  }
+
+  return (
+    <group ref={frameRef}>
+      {/* Frame structure */}
+      {renderFrame()}
+
+      {/* Console */}
+      {renderConsole()}
+
+      {/* Console buttons */}
+      {renderConsoleButtons()}
+
+      {/* Lights */}
+      {renderLights()}
+    </group>
+  )
+}
+
+// Componente para luces pulsantes
+function PulsingLight({ position, color }) {
+  const lightRef = useRef()
+
+  useFrame((state) => {
+    if (lightRef.current) {
+      const t = state.clock.getElapsedTime()
+      lightRef.current.intensity = 0.3 + Math.sin(t * 3) * 0.3
+    }
+  })
+
+  return <pointLight ref={lightRef} position={position} color={color} intensity={0.5} />
+}
+
+// Space scene component for the 3D space
 function SpaceScene({ qlusters, qerniums, onNodeHover, onNodeLeave, onNodeClick, cameraTarget }) {
   const { camera } = useThree()
 
@@ -201,6 +775,8 @@ function SpaceScene({ qlusters, qerniums, onNodeHover, onNodeLeave, onNodeClick,
 
   return (
     <>
+      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+
       {/* Render qlusters */}
       {qlusters.map((qluster) => (
         <QlusterNode
@@ -238,6 +814,15 @@ function SpaceScene({ qlusters, qerniums, onNodeHover, onNodeLeave, onNodeClick,
           />
         )
       })}
+
+      <OrbitControls
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
+        minDistance={5}
+        maxDistance={100}
+        target={new Vector3(...cameraTarget)}
+      />
     </>
   )
 }

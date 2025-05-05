@@ -1,11 +1,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Brain, MoreHorizontal, Zap, CuboidIcon as Cube, Eye } from "lucide-react"
+import {
+  Brain,
+  MoreHorizontal,
+  Zap,
+  CuboidIcon as Cube,
+  Eye,
+  FileText,
+  Video,
+  LinkIcon,
+  ClipboardList,
+  HelpCircle,
+} from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import Image from "next/image"
 
+// Definir los tipos de contenido posibles
+export type ContentTypeQernium = "texto" | "video" | "enlace" | "tarea" | "quiz"
+
+// Actualizar la interfaz para incluir el tipo de contenido
 interface QerniumCardProps {
   qernium: {
     id: string | number
@@ -18,6 +33,7 @@ interface QerniumCardProps {
     qlusters: string[]
     color: "purple" | "cyan" | "pink" | "amber"
     coverImage?: string | null
+    contentType: ContentTypeQernium // Tipo de contenido
   }
 }
 
@@ -84,6 +100,42 @@ export function QerniumCard({ qernium }: QerniumCardProps) {
     }
   }
 
+  // Función para obtener el color y el icono según el tipo de contenido
+  const getContentTypeInfo = (type: ContentTypeQernium) => {
+    switch (type) {
+      case "texto":
+        return {
+          color: "bg-blue-900/30 text-blue-300 border-blue-900/50",
+          icon: <FileText className="h-3 w-3 mr-1" />,
+        }
+      case "video":
+        return {
+          color: "bg-red-900/30 text-red-300 border-red-900/50",
+          icon: <Video className="h-3 w-3 mr-1" />,
+        }
+      case "enlace":
+        return {
+          color: "bg-green-900/30 text-green-300 border-green-900/50",
+          icon: <LinkIcon className="h-3 w-3 mr-1" />,
+        }
+      case "tarea":
+        return {
+          color: "bg-amber-900/30 text-amber-300 border-amber-900/50",
+          icon: <ClipboardList className="h-3 w-3 mr-1" />,
+        }
+      case "quiz":
+        return {
+          color: "bg-purple-900/30 text-purple-300 border-purple-900/50",
+          icon: <HelpCircle className="h-3 w-3 mr-1" />,
+        }
+      default:
+        return {
+          color: "bg-gray-900/30 text-gray-300 border-gray-700/50",
+          icon: <FileText className="h-3 w-3 mr-1" />,
+        }
+    }
+  }
+
   // Imagen de portada predeterminada según el color y nivel de Bloom
   const defaultCoverImage =
     qernium.color === "cyan"
@@ -93,6 +145,8 @@ export function QerniumCard({ qernium }: QerniumCardProps) {
         : qernium.color === "amber"
           ? "/abstract-dl.png"
           : "/abstract-geometric-pattern.png"
+
+  const contentTypeInfo = getContentTypeInfo(qernium.contentType)
 
   return (
     <Card className={`${borderColor} bg-black/50 backdrop-blur-sm ${shadowColor} overflow-hidden`}>
@@ -106,6 +160,15 @@ export function QerniumCard({ qernium }: QerniumCardProps) {
           priority
         />
         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 to-transparent`}></div>
+
+        {/* Badge de tipo de contenido en la esquina superior izquierda */}
+        <div className="absolute top-2 left-2">
+          <span className={`px-2 py-0.5 text-xs rounded-full border ${contentTypeInfo.color} flex items-center`}>
+            {contentTypeInfo.icon}
+            {qernium.contentType.charAt(0).toUpperCase() + qernium.contentType.slice(1)}
+          </span>
+        </div>
+
         <div className="absolute bottom-2 right-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

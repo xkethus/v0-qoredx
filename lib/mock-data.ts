@@ -4,6 +4,7 @@ export type QerniumStatus = "draft" | "published" | "archived"
 export type QlusterStatus = "draft" | "scheduled" | "active" | "completed" | "archived"
 export type QlusterVisibility = "private" | "public" | "restricted"
 export type ContentType = "document" | "video" | "quiz" | "assignment"
+export type ContentTypeQernium = "texto" | "video" | "enlace" | "tarea" | "quiz" // Tipos de contenido para Qerniums
 
 // Interfaces para nuestros datos
 export interface Skill {
@@ -65,6 +66,7 @@ export interface Qluster {
   position?: [number, number, number] // Para visualización 3D
 }
 
+// Actualizar la interfaz Qernium para incluir el tipo de contenido
 export interface Qernium {
   id: string
   title: string
@@ -81,6 +83,7 @@ export interface Qernium {
   content: QerniumContent[]
   position?: [number, number, number] // Para visualización 3D
   qlusterId?: string // Para relación con Qluster
+  contentType: ContentTypeQernium // Tipo de contenido principal
 }
 
 export interface QerniumContent {
@@ -257,7 +260,7 @@ function getActionVerbFromBloomLevel(bloomLevel: BloomLevel): string {
   }
 }
 
-// Crear Qerniums
+// Crear Qerniums con tipos de contenido específicos
 export const mockQerniums: Qernium[] = [
   // Qerniums para Física Cuántica
   {
@@ -272,6 +275,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-geometric-gold.png",
     creatorId: "creator-1",
     creatorName: "Dr. Quantum",
+    contentType: "texto",
     skills: [
       {
         id: "qs-1-1",
@@ -341,6 +345,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-geometric-gold.png",
     creatorId: "creator-1",
     creatorName: "Dr. Quantum",
+    contentType: "video",
     skills: [
       {
         id: "qs-2-1",
@@ -394,6 +399,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-geometric-gold.png",
     creatorId: "creator-1",
     creatorName: "Dr. Quantum",
+    contentType: "enlace",
     skills: [
       {
         id: "qs-3-1",
@@ -434,6 +440,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-geometric-gold.png",
     creatorId: "creator-1",
     creatorName: "Dr. Quantum",
+    contentType: "quiz",
     skills: [
       {
         id: "qs-4-1",
@@ -505,6 +512,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-color-run.png",
     creatorId: "creator-2",
     creatorName: "Dra. Cosmos",
+    contentType: "texto",
     skills: [
       {
         id: "qs-5-1",
@@ -543,6 +551,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-color-run.png",
     creatorId: "creator-2",
     creatorName: "Dra. Cosmos",
+    contentType: "video",
     skills: [
       {
         id: "qs-6-1",
@@ -584,6 +593,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-color-run.png",
     creatorId: "creator-2",
     creatorName: "Dra. Cosmos",
+    contentType: "enlace",
     skills: [
       {
         id: "qs-7-1",
@@ -636,6 +646,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-color-run.png",
     creatorId: "creator-2",
     creatorName: "Dra. Cosmos",
+    contentType: "tarea",
     skills: [
       {
         id: "qs-8-1",
@@ -699,6 +710,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-em.png",
     creatorId: "creator-3",
     creatorName: "Prof. Neural",
+    contentType: "texto",
     skills: [
       {
         id: "qs-9-1",
@@ -768,6 +780,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-em.png",
     creatorId: "creator-3",
     creatorName: "Prof. Neural",
+    contentType: "tarea",
     skills: [
       {
         id: "qs-10-1",
@@ -820,6 +833,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-em.png",
     creatorId: "creator-3",
     creatorName: "Prof. Neural",
+    contentType: "video",
     skills: [
       {
         id: "qs-11-1",
@@ -873,6 +887,7 @@ export const mockQerniums: Qernium[] = [
     coverImage: "/abstract-em.png",
     creatorId: "creator-3",
     creatorName: "Prof. Neural",
+    contentType: "quiz",
     skills: [
       {
         id: "qs-12-1",

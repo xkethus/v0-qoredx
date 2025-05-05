@@ -8,7 +8,7 @@ interface QuillEditorProps {
   onChange: (value: string) => void
   theme?: "spacepunk" | "default"
   placeholder?: string
-  key?: string // Añadimos key como prop para forzar remontaje
+  forceReinitialize?: boolean
 }
 
 export default function QuillEditor({
@@ -16,6 +16,7 @@ export default function QuillEditor({
   onChange,
   theme = "default",
   placeholder = "Comienza a escribir tu contenido aquí...",
+  forceReinitialize = false,
 }: QuillEditorProps) {
   // Referencias y estados
   const editorRef = useRef<HTMLDivElement>(null)
@@ -25,6 +26,7 @@ export default function QuillEditor({
   const [editorId] = useState(`quill-editor-${Math.random().toString(36).substring(2, 9)}`)
   const [isVisible, setIsVisible] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
+  const initializationAttemptsRef = useRef(0) // Use ref instead of state to avoid re-renders
 
   // Detectar cuando el script de Quill está cargado
   const handleScriptLoad = () => {
@@ -65,12 +67,23 @@ export default function QuillEditor({
     }
   }, [])
 
+  // Forzar reinicialización cuando cambia forceReinitialize
+  useEffect(() => {
+    if (forceReinitialize && isInitialized) {
+      console.log("Forcing reinitialization of Quill")
+      if (quillRef.current) {
+        quillRef.current = null
+      }
+      setIsInitialized(false)
+      setIsEditorReady(false)
+      initializationAttemptsRef.current = 0
+    }
+  }, [forceReinitialize, isInitialized])
+
   // Inicializar Quill cuando todo esté listo
   useEffect(() => {
     // Solo inicializar si el script está cargado, el componente es visible y no está ya inicializado
     if (!isScriptLoaded || !isVisible || isInitialized) return
-
-    console.log("Attempting to initialize Quill")
 
     const initializeQuill = () => {
       try {
@@ -86,6 +99,13 @@ export default function QuillEditor({
         if (!editorElement) {
           console.error("Editor element not found:", editorId)
           return false
+        }
+
+        // Verificar si ya existe una instancia de Quill en este elemento
+        if (editorElement.querySelector(".ql-editor")) {
+          console.log("Quill already initialized on this element, cleaning up")
+          // Limpiar el contenido del elemento para evitar duplicados
+          editorElement.innerHTML = ""
         }
 
         // Configuración completa para el editor
@@ -144,8 +164,16 @@ export default function QuillEditor({
 
     // Intentar inicializar con reintento
     const attemptInitialization = () => {
+      // Limitar el número de intentos para evitar bucles infinitos
+      if (initializationAttemptsRef.current > 10) {
+        console.error("Failed to initialize Quill after multiple attempts")
+        return
+      }
+
+      initializationAttemptsRef.current += 1
       const success = initializeQuill()
-      if (!success) {
+
+      if (!success && isVisible && isScriptLoaded && !isInitialized) {
         // Reintentar después de un breve retraso
         setTimeout(attemptInitialization, 200)
       }

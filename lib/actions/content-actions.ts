@@ -1,287 +1,468 @@
 "use server"
 
-import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
+import { supabase } from "../db"
 
-// Crear un cliente de Supabase para el servidor
-const supabaseUrl = process.env.SUPABASE_SUPABASE_NEXT_PUBLIC_SUPABASE_URL || ""
-const supabaseServiceKey = process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || ""
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+export type ContentType = "document" | "video" | "quiz" | "assignment"
 
-type ContentType = "document" | "video" | "quiz" | "assignment"
-
-interface ContentData {
-  moduleId: string
+export interface Content {
+  id: string
   title: string
   description: string
   type: ContentType
-  content: any
-  order: number
+  coverImage?: string
+  qerniumId?: string
+  qerniumTitle?: string
+  createdAt: string
 }
 
-// Reemplazar la función createContent
+export interface ContentData {
+  qerniumId?: string
+  title: string
+  description?: string
+  type: ContentType
+  content?: any
+  order?: number
+  coverImage?: string
+  creatorId?: string
+}
+
+// Create new content
 export async function createContent(data: ContentData) {
   try {
-    // En una implementación real, validaríamos los datos y manejaríamos errores específicos
-    const { moduleId, title, description, type, content, order } = data
+    // Validate required data
+    if (!data.title || !data.type) {
+      return {
+        success: false,
+        error: "Title and type are required",
+      }
+    }
 
-    // Insertar el contenido en la base de datos usando Supabase
-    const { data: result, error } = await supabase
-      .from("contents")
-      .insert({
-        module_id: moduleId,
-        title,
-        description,
-        type,
-        content,
-        order,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-      .select("id")
-      .single()
+    // Prepare data for insertion
+    const contentData = {
+      qernium_id: data.qerniumId,
+      title: data.title,
+      description: data.description || "",
+      type: data.type,
+      content: data.content || {},
+      order: data.order || 0,
+      cover_image: data.coverImage,
+      creator_id: data.creatorId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
 
-    if (error) throw error
+    // Insert content into database
+    const { data: result, error } = await supabase.from("contents").insert(contentData).select("id").single()
 
-    // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/courses")
+    if (error) {
+      console.error("Error creating content:", error)
+      return {
+        success: false,
+        error: error.message,
+      }
+    }
+
+    // Revalidate paths to update data
+    revalidatePath("/dashboard/content")
+    revalidatePath("/dashboard/qerniums")
 
     return {
       success: true,
       contentId: result.id,
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating content:", error)
     return {
       success: false,
-      error: "Failed to create content",
+      error: error.message || "Failed to create content",
     }
   }
 }
 
-// Reemplazar la función getContentByModule
-export async function getContentByModule(moduleId: string) {
-  try {
-    const { data, error } = await supabase
-      .from("contents")
-      .select("*")
-      .eq("module_id", moduleId)
-      .order("order", { ascending: true })
-
-    if (error) throw error
-
-    return {
-      success: true,
-      content: data,
-    }
-  } catch (error) {
-    console.error("Error fetching content:", error)
-    return {
-      success: false,
-      error: "Failed to fetch content",
-    }
-  }
-}
-
-// Reemplazar la función getContentById
-export async function getContentById(contentId: string) {
-  try {
-    const { data, error } = await supabase.from("contents").select("*").eq("id", contentId).single()
-
-    if (error) throw error
-
-    return {
-      success: true,
-      content: data,
-    }
-  } catch (error) {
-    console.error("Error fetching content:", error)
-    return {
-      success: false,
-      error: "Failed to fetch content",
-    }
-  }
-}
-
-// Reemplazar la función updateContent
-export async function updateContent(contentId: string, data: Partial<ContentData>) {
-  try {
-    const { title, description, type, content, order } = data
-
-    // Construir el objeto de actualización con los campos proporcionados
-    const updateFields: any = {}
-
-    if (title !== undefined) updateFields.title = title
-    if (description !== undefined) updateFields.description = description
-    if (type !== undefined) updateFields.type = type
-    if (content !== undefined) updateFields.content = content
-    if (order !== undefined) updateFields.order = order
-
-    updateFields.updated_at = new Date()
-
-    // Ejecutar la actualización con Supabase
-    const { error } = await supabase.from("contents").update(updateFields).eq("id", contentId)
-
-    if (error) throw error
-
-    // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/courses")
-
-    return {
-      success: true,
-    }
-  } catch (error) {
-    console.error("Error updating content:", error)
-    return {
-      success: false,
-      error: "Failed to update content",
-    }
-  }
-}
-
-// Reemplazar la función deleteContent
-export async function deleteContent(contentId: string) {
-  try {
-    const { error } = await supabase.from("contents").delete().eq("id", contentId)
-
-    if (error) throw error
-
-    // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/courses")
-
-    return {
-      success: true,
-    }
-  } catch (error) {
-    console.error("Error deleting content:", error)
-    return {
-      success: false,
-      error: "Failed to delete content",
-    }
-  }
-}
-
-// Reemplazar la función searchContent
-export async function searchContent({
-  term,
-  type = "title",
-  courseFilter,
-  typeFilter,
+// Get all contents with pagination and filters
+export async function getAllContents({
+  page = 1,
+  limit = 10,
+  search = "",
+  type = "",
+  qerniumId = "",
+  orderBy = "created_at",
+  orderDirection = "desc",
 }: {
-  term: string
-  type: "title" | "id" | "creator" | "course"
-  courseFilter?: string
-  typeFilter?: "document" | "video" | "quiz" | "assignment"
-}) {
+  page?: number
+  limit?: number
+  search?: string
+  type?: string
+  qerniumId?: string
+  orderBy?: string
+  orderDirection?: "asc" | "desc"
+} = {}) {
   try {
+    const offset = (page - 1) * limit
+
+    // Build base query
     let query = supabase.from("contents").select(`
-        id, 
-        title, 
-        description, 
-        type, 
-        created_at,
-        users!creator_id (name),
-        modules!module_id (
-          qlusters!qluster_id (title)
-        ),
-        module_id
-      `)
+      *,
+      qerniums (
+        id,
+        title
+      )
+    `)
 
-    // Aplicar filtros según el tipo de búsqueda
-    if (type === "title") {
-      query = query.ilike("title", `%${term}%`)
-    } else if (type === "id") {
-      query = query.ilike("id", `%${term}%`)
-    } else if (type === "creator") {
-      query = query.ilike("users.name", `%${term}%`)
-    } else if (type === "course") {
-      query = query.ilike("modules.qlusters.title", `%${term}%`)
+    // Apply filters if provided
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
     }
 
-    // Añadir filtros adicionales si se proporcionan
-    if (courseFilter) {
-      query = query.eq("modules.qlusters.id", courseFilter)
+    if (type) {
+      query = query.eq("type", type)
     }
 
-    if (typeFilter) {
-      query = query.eq("type", typeFilter)
+    if (qerniumId) {
+      query = query.eq("qernium_id", qerniumId)
     }
 
-    // Ordenar por fecha de creación (más reciente primero)
-    query = query.order("created_at", { ascending: false }).limit(50)
+    // Get total count for pagination
+    const { count, error: countError } = await supabase.from("contents").select("*", { count: "exact", head: true })
 
+    if (countError) {
+      throw countError
+    }
+
+    // Execute main query with sorting and pagination
     const { data, error } = await query
+      .order(orderBy, { ascending: orderDirection === "asc" })
+      .range(offset, offset + limit - 1)
 
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
-    // Transformar los datos para que coincidan con el formato esperado
-    const formattedResults = data.map((item) => ({
+    // Transform data to expected format
+    const formattedData = (data || []).map((item) => ({
       id: item.id,
       title: item.title,
       description: item.description,
       type: item.type,
+      content: item.content,
+      order: item.order,
+      coverImage: item.cover_image,
+      creatorId: item.creator_id,
+      qerniumId: item.qernium_id,
+      qerniumTitle: item.qerniums?.title,
       createdAt: item.created_at,
-      creatorName: item.users?.name,
-      courseName: item.modules?.qlusters?.title,
-      moduleId: item.module_id,
+      updatedAt: item.updated_at,
     }))
 
     return {
       success: true,
-      content: formattedResults,
+      contents: formattedData,
+      pagination: {
+        total: count || 0,
+        page,
+        limit,
+        totalPages: Math.ceil((count || 0) / limit),
+      },
     }
-  } catch (error) {
-    console.error("Error searching content:", error)
+  } catch (error: any) {
+    console.error("Error fetching contents:", error)
     return {
       success: false,
-      error: "Failed to search content",
+      error: error.message || "Failed to fetch contents",
+      contents: [],
+      pagination: {
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      },
     }
   }
 }
 
-// Reemplazar la función cloneContent
-export async function cloneContent(contentId: string, moduleId: string) {
+// Get content by ID
+export async function getContentById(contentId: string) {
   try {
-    // Obtener el contenido original
+    const { data, error } = await supabase
+      .from("contents")
+      .select(`
+        *,
+        qerniums (
+          id,
+          title
+        )
+      `)
+      .eq("id", contentId)
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
+      return {
+        success: false,
+        error: "Content not found",
+      }
+    }
+
+    // Transform data to expected format
+    const formattedData = {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      type: data.type,
+      content: data.content,
+      order: data.order,
+      coverImage: data.cover_image,
+      creatorId: data.creator_id,
+      qerniumId: data.qernium_id,
+      qerniumTitle: data.qerniums?.title,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    }
+
+    return {
+      success: true,
+      content: formattedData,
+    }
+  } catch (error: any) {
+    console.error("Error fetching content:", error)
+    return {
+      success: false,
+      error: error.message || "Failed to fetch content",
+    }
+  }
+}
+
+// Update existing content
+export async function updateContent(contentId: string, data: Partial<ContentData>) {
+  try {
+    // Prepare data for update
+    const updateData: any = {}
+
+    if (data.title !== undefined) updateData.title = data.title
+    if (data.description !== undefined) updateData.description = data.description
+    if (data.type !== undefined) updateData.type = data.type
+    if (data.content !== undefined) updateData.content = data.content
+    if (data.order !== undefined) updateData.order = data.order
+    if (data.coverImage !== undefined) updateData.cover_image = data.coverImage
+    if (data.qerniumId !== undefined) updateData.qernium_id = data.qerniumId
+
+    updateData.updated_at = new Date().toISOString()
+
+    // Execute update
+    const { error } = await supabase.from("contents").update(updateData).eq("id", contentId)
+
+    if (error) {
+      throw error
+    }
+
+    // Revalidate paths
+    revalidatePath("/dashboard/content")
+    revalidatePath(`/dashboard/content/${contentId}`)
+    revalidatePath("/dashboard/qerniums")
+
+    return {
+      success: true,
+    }
+  } catch (error: any) {
+    console.error("Error updating content:", error)
+    return {
+      success: false,
+      error: error.message || "Failed to update content",
+    }
+  }
+}
+
+// Delete content
+export async function deleteContent(contentId: string) {
+  try {
+    const { error } = await supabase.from("contents").delete().eq("id", contentId)
+
+    if (error) {
+      throw error
+    }
+
+    // Revalidate paths
+    revalidatePath("/dashboard/content")
+    revalidatePath("/dashboard/qerniums")
+
+    return {
+      success: true,
+    }
+  } catch (error: any) {
+    console.error("Error deleting content:", error)
+    return {
+      success: false,
+      error: error.message || "Failed to delete content",
+    }
+  }
+}
+
+// Function to search contents with filters
+export async function searchContents(
+  query = "",
+  filters: { type?: ContentType } = {},
+): Promise<{ success: boolean; contents?: Content[]; error?: string }> {
+  try {
+    // Mock data for demonstration
+    const mockContents: Content[] = [
+      {
+        id: "1",
+        title: "Introducción a la Física Cuántica",
+        description: "Una introducción a los conceptos básicos de la física cuántica",
+        type: "document",
+        createdAt: "2023-05-15T10:30:00Z",
+      },
+      {
+        id: "2",
+        title: "Tutorial: Ecuaciones Diferenciales",
+        description: "Video explicativo sobre cómo resolver ecuaciones diferenciales de primer orden",
+        type: "video",
+        createdAt: "2023-06-20T14:45:00Z",
+      },
+      {
+        id: "3",
+        title: "Cuestionario: Cálculo Integral",
+        description: "Preguntas de evaluación sobre cálculo integral",
+        type: "quiz",
+        createdAt: "2023-04-10T09:15:00Z",
+      },
+      {
+        id: "4",
+        title: "Tarea: Recursos de Khan Academy",
+        description: "Tarea con enlaces a recursos educativos de Khan Academy sobre álgebra",
+        type: "assignment",
+        createdAt: "2023-07-05T16:20:00Z",
+      },
+      {
+        id: "5",
+        title: "Teoría de la Relatividad",
+        description: "Explicación detallada de la teoría de la relatividad de Einstein",
+        type: "document",
+        createdAt: "2023-03-25T11:10:00Z",
+        qerniumId: "101",
+        qerniumTitle: "Fundamentos de Física Moderna",
+      },
+    ]
+
+    // Filter by query
+    let filteredContents = mockContents
+    if (query) {
+      filteredContents = filteredContents.filter(
+        (content) =>
+          content.title.toLowerCase().includes(query.toLowerCase()) ||
+          content.description.toLowerCase().includes(query.toLowerCase()),
+      )
+    }
+
+    // Filter by type
+    if (filters.type) {
+      filteredContents = filteredContents.filter((content) => content.type === filters.type)
+    }
+
+    return {
+      success: true,
+      contents: filteredContents,
+    }
+  } catch (error) {
+    console.error("Error searching contents:", error)
+    return {
+      success: false,
+      error: "Failed to search contents",
+    }
+  }
+}
+
+// Clone content
+export async function cloneContent(contentId: string, newQerniumId?: string) {
+  try {
+    // Get original content
     const { data: originalContent, error: fetchError } = await supabase
       .from("contents")
       .select("*")
       .eq("id", contentId)
       .single()
 
-    if (fetchError) throw fetchError
+    if (fetchError) {
+      throw fetchError
+    }
 
-    // Insertar el contenido clonado
+    if (!originalContent) {
+      return {
+        success: false,
+        error: "Original content not found",
+      }
+    }
+
+    // Create new cloned content
+    const clonedContent = {
+      qernium_id: newQerniumId || originalContent.qernium_id,
+      title: `${originalContent.title} (Copia)`,
+      description: originalContent.description,
+      type: originalContent.type,
+      content: originalContent.content,
+      order: originalContent.order,
+      cover_image: originalContent.cover_image,
+      creator_id: originalContent.creator_id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
     const { data: result, error: insertError } = await supabase
       .from("contents")
-      .insert({
-        module_id: moduleId,
-        title: `${originalContent.title} (Copia)`,
-        description: originalContent.description,
-        type: originalContent.type,
-        content: originalContent.content,
-        order: originalContent.order,
-        created_at: new Date(),
-        updated_at: new Date(),
-        creator_id: originalContent.creator_id,
-      })
+      .insert(clonedContent)
       .select("id")
       .single()
 
-    if (insertError) throw insertError
+    if (insertError) {
+      throw insertError
+    }
 
-    // Revalidar la ruta para actualizar los datos
-    revalidatePath("/dashboard/courses")
+    // Revalidate paths
+    revalidatePath("/dashboard/content")
+    revalidatePath("/dashboard/qerniums")
 
     return {
       success: true,
       contentId: result.id,
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error cloning content:", error)
     return {
       success: false,
-      error: "Failed to clone content",
+      error: error.message || "Failed to clone content",
+    }
+  }
+}
+
+// Check if content with same title exists
+export async function checkContentExists(title: string, excludeId?: string) {
+  try {
+    let query = supabase.from("contents").select("id").eq("title", title)
+
+    if (excludeId) {
+      query = query.neq("id", excludeId)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      throw error
+    }
+
+    return {
+      success: true,
+      exists: data.length > 0,
+    }
+  } catch (error: any) {
+    console.error("Error checking content existence:", error)
+    return {
+      success: false,
+      error: error.message || "Failed to check content existence",
+      exists: false,
     }
   }
 }

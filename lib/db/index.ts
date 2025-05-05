@@ -1,20 +1,22 @@
-import { neon, neonConfig } from "@neondatabase/serverless"
-import { Client } from "postgres"
+import { createMockSupabaseClient } from "./mock-supabase"
 
-const sql = neon(process.env.DATABASE_URL || "", neonConfig())
+// Usar solo implementaciones mock para evitar conexiones a bases de datos reales
+const supabase = createMockSupabaseClient()
 
+// Función mock para probar la conexión
 async function testConnection() {
-  try {
-    const client = new Client(process.env.DATABASE_URL || "")
-    await client.connect()
-    const result = await client.query("SELECT NOW()")
-    await client.end()
-
-    return { success: true, timestamp: result.rows[0].now }
-  } catch (error) {
-    console.error("Error al conectar a la base de datos:", error)
-    return { success: false, error: error }
+  return {
+    success: true,
+    timestamp: new Date().toISOString(),
   }
 }
 
-export { sql, testConnection }
+// Mock de SQL para evitar conexiones reales
+const sql = async (strings: TemplateStringsArray, ...values: any[]) => {
+  console.log("SQL Mock:", strings, values)
+  return [{ now: new Date().toISOString() }]
+}
+
+const db = sql
+
+export { sql, db, testConnection, supabase }

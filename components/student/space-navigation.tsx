@@ -6,7 +6,19 @@ import { OrbitControls, Html, Stars } from "@react-three/drei"
 import { Vector3 } from "three"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Info, Atom, Layers, Rocket, Settings, Navigation2, EyeOff, Monitor } from "lucide-react"
+import {
+  Info,
+  Atom,
+  Layers,
+  Rocket,
+  Settings,
+  Navigation2,
+  EyeOff,
+  Monitor,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+} from "lucide-react"
 import * as THREE from "three"
 import { mockQlusters } from "@/lib/mock-data"
 import { useHUD } from "@/lib/contexts/hud-context"
@@ -17,10 +29,11 @@ const generateQerniumsForQlusters = () => {
   const qerniums = []
 
   mockQlusters.forEach((qluster) => {
-    // Generamos 3 Qerniums para cada Qluster (reducido de 4 a 3)
+    // Generamos 3 Qerniums para cada Qluster
     for (let i = 0; i < 3; i++) {
       const bloomLevels = ["remember", "understand", "apply", "analyze", "evaluate", "create"]
-      const status = i < 2 ? "published" : Math.random() > 0.5 ? "published" : "draft"
+      // Aseguramos que todos los Qerniums estén publicados para evitar problemas de visualización
+      const status = "published"
 
       qerniums.push({
         id: `qrn-${qluster.id}-${i}`,
@@ -29,7 +42,7 @@ const generateQerniumsForQlusters = () => {
         qlusterId: qluster.id,
         status: status,
         bloomLevel: bloomLevels[Math.floor(Math.random() * bloomLevels.length)],
-        color: qluster.color,
+        color: qluster.color, // Aseguramos que el color sea el mismo que el del Qluster
         // La posición se calculará dinámicamente en el componente QerniumNode
         position: null,
         content: [
@@ -396,16 +409,19 @@ export function SpaceNavigation({ onNodeSelect }) {
     x: 0,
     y: 0,
     rotation: 0,
+    zoom: 15, // Valor inicial del zoom
   })
-  // Estado para controlar la visibilidad de las etiquetas
-  const [showLabels, setShowLabels] = useState(false)
+  // Estado para controlar la visibilidad de las etiquetas iniciales
+  const [showInitialLabels, setShowInitialLabels] = useState(false)
+  // Referencia al controlador de órbita
+  const orbitControlsRef = useRef(null)
 
   const { showHUD, customizations, hudStyle, updateCustomization, updateHUDStyle } = useHUD()
 
-  // Mostrar etiquetas después de un delay
+  // Mostrar etiquetas iniciales después de un delay
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowLabels(true)
+      setShowInitialLabels(true)
     }, 3000) // 3 segundos de delay
 
     return () => clearTimeout(timer)
@@ -488,7 +504,28 @@ export function SpaceNavigation({ onNodeSelect }) {
       x: 0,
       y: 0,
       rotation: 0,
+      zoom: 15,
     })
+
+    // Resetear la cámara usando OrbitControls
+    if (orbitControlsRef.current) {
+      orbitControlsRef.current.reset()
+    }
+  }
+
+  // Funciones para controlar el zoom
+  const zoomIn = () => {
+    setManualControls((prev) => ({
+      ...prev,
+      zoom: Math.max(5, prev.zoom - 2), // Acercarse (reducir el valor de zoom)
+    }))
+  }
+
+  const zoomOut = () => {
+    setManualControls((prev) => ({
+      ...prev,
+      zoom: Math.min(40, prev.zoom + 2), // Alejarse (aumentar el valor de zoom)
+    }))
   }
 
   // Exponer la función toggleHUD al objeto window para que pueda ser llamada desde fuera
@@ -520,12 +557,38 @@ export function SpaceNavigation({ onNodeSelect }) {
           onNodeClick={handleNodeClick}
           cameraTarget={cameraTarget}
           manualControls={manualControls}
-          showLabels={showLabels}
+          showInitialLabels={showInitialLabels}
+          orbitControlsRef={orbitControlsRef}
         />
 
         {/* Cockpit overlay - solo se muestra si showHUD es true */}
         {showHUD && <CockpitOverlay customizations={customizations} assets={hudStyle} />}
       </Canvas>
+
+      {/* Controles de zoom flotantes - siempre visibles */}
+      <div className="absolute top-1/2 right-6 transform -translate-y-1/2 z-10 flex flex-col gap-2">
+        <Button
+          onClick={zoomIn}
+          className="bg-black/70 border border-cyan-500 text-cyan-300 hover:bg-cyan-900/20 h-10 w-10 rounded-full p-0 flex items-center justify-center"
+          title="Acercar"
+        >
+          <ZoomIn className="h-5 w-5" />
+        </Button>
+        <Button
+          onClick={zoomOut}
+          className="bg-black/70 border border-cyan-500 text-cyan-300 hover:bg-cyan-900/20 h-10 w-10 rounded-full p-0 flex items-center justify-center"
+          title="Alejar"
+        >
+          <ZoomOut className="h-5 w-5" />
+        </Button>
+        <Button
+          onClick={resetNavigation}
+          className="bg-black/70 border border-cyan-500 text-cyan-300 hover:bg-cyan-900/20 h-10 w-10 rounded-full p-0 flex items-center justify-center"
+          title="Reiniciar vista"
+        >
+          <RotateCcw className="h-5 w-5" />
+        </Button>
+      </div>
 
       {/* Manual navigation controls - ahora en el centro inferior */}
       {showNavigation && (
@@ -573,11 +636,24 @@ export function SpaceNavigation({ onNodeSelect }) {
                 </div>
 
                 <div className="col-span-3">
+                  <label className="text-xs text-gray-300 block mb-1 text-center">Zoom</label>
+                  <input
+                    type="range"
+                    min="5"
+                    max="40"
+                    value={manualControls.zoom}
+                    onChange={(e) => handleManualNavigation("zoom", Number.parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <div className="col-span-3">
                   <Button
                     onClick={resetNavigation}
                     className="w-full bg-cyan-900/50 hover:bg-cyan-800/50 text-cyan-300 border border-cyan-700/50 text-xs"
                     size="sm"
                   >
+                    <RotateCcw className="h-3 w-3 mr-1" />
                     Volver al Centro
                   </Button>
                 </div>
@@ -649,26 +725,26 @@ export function SpaceNavigation({ onNodeSelect }) {
                         className={`bg-${
                           hoveredNode.status === "completed"
                             ? "green"
-                            : hoveredNode.status === "available"
+                            : hoveredNode.status === "available" || hoveredNode.status === "published"
                               ? "pink"
                               : "gray"
                         }-900/30 text-${
                           hoveredNode.status === "completed"
                             ? "green"
-                            : hoveredNode.status === "available"
+                            : hoveredNode.status === "available" || hoveredNode.status === "published"
                               ? "pink"
                               : "gray"
                         }-300 border border-${
                           hoveredNode.status === "completed"
                             ? "green"
-                            : hoveredNode.status === "available"
+                            : hoveredNode.status === "available" || hoveredNode.status === "published"
                               ? "pink"
                               : "gray"
                         }-500/50`}
                       >
                         {hoveredNode.status === "completed"
                           ? "Completado"
-                          : hoveredNode.status === "available"
+                          : hoveredNode.status === "available" || hoveredNode.status === "published"
                             ? "Disponible"
                             : "Bloqueado"}
                       </Badge>
@@ -934,7 +1010,8 @@ function SpaceScene({
   onNodeClick,
   cameraTarget,
   manualControls,
-  showLabels,
+  showInitialLabels,
+  orbitControlsRef,
 }) {
   const { camera } = useThree()
   const sceneRef = useRef()
@@ -954,7 +1031,7 @@ function SpaceScene({
     // Apply manual controls to camera position
     const targetX = cameraTarget[0] + manualControls.x
     const targetY = cameraTarget[1] + manualControls.y
-    const targetZ = cameraTarget[2] + 15
+    const targetZ = cameraTarget[2] + manualControls.zoom // Usar el valor de zoom
 
     camera.position.lerp(new Vector3(targetX, targetY, targetZ), 0.05)
 
@@ -974,7 +1051,7 @@ function SpaceScene({
         onHover={() => onNodeHover(homeNode, "home")}
         onLeave={onNodeLeave}
         onClick={() => onNodeClick(homeNode, "home")}
-        showLabels={showLabels}
+        showInitialLabels={showInitialLabels}
       />
 
       {/* Render qlusters */}
@@ -985,7 +1062,7 @@ function SpaceScene({
           onHover={() => onNodeHover(qluster, "qluster")}
           onLeave={onNodeLeave}
           onClick={() => onNodeClick(qluster, "qluster")}
-          showLabels={showLabels}
+          showInitialLabels={showInitialLabels}
         />
       ))}
 
@@ -997,7 +1074,7 @@ function SpaceScene({
           onHover={() => onNodeHover(qernium, "qernium")}
           onLeave={onNodeLeave}
           onClick={() => onNodeClick(qernium, "qernium")}
-          showLabels={showLabels}
+          showInitialLabels={showInitialLabels}
         />
       ))}
 
@@ -1018,19 +1095,25 @@ function SpaceScene({
       })}
 
       <OrbitControls
+        ref={orbitControlsRef}
         enablePan={true}
         enableZoom={true}
         enableRotate={true}
         minDistance={5}
-        maxDistance={100}
+        maxDistance={40}
         target={new Vector3(...cameraTarget)}
+        zoomSpeed={0.5}
+        rotateSpeed={0.5}
+        panSpeed={0.5}
+        dampingFactor={0.1}
+        enableDamping={true}
       />
     </group>
   )
 }
 
 // Nuevo componente para el nodo central "Home"
-function HomeNode({ home, onHover, onLeave, onClick, showLabels }) {
+function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels }) {
   const meshRef = useRef()
   const glowRef = useRef()
   const ringsRef = useRef()
@@ -1110,9 +1193,9 @@ function HomeNode({ home, onHover, onLeave, onClick, showLabels }) {
         />
       </mesh>
 
-      {/* Hologramas flotantes - solo mostrar si showLabels es true */}
-      {showLabels && (
-        <Html position={[0, 2.5, 0]} center distanceFactor={15} occlude>
+      {/* Hologramas flotantes - solo mostrar si showInitialLabels es true o si está en hover */}
+      {(showInitialLabels || hovered) && (
+        <Html position={[0, 3.5, 0]} center distanceFactor={15} occlude={false}>
           <div className="px-3 py-1 rounded-full bg-amber-900/80 border border-amber-500/50 text-amber-300 text-sm whitespace-nowrap">
             {home.title}
           </div>
@@ -1125,8 +1208,8 @@ function HomeNode({ home, onHover, onLeave, onClick, showLabels }) {
   )
 }
 
-// Modificar la función QlusterNode para hacerlos más pequeños
-function QlusterNode({ qluster, onHover, onLeave, onClick, showLabels }) {
+// Modificar la función QlusterNode para hacerlos más pequeños y aplicar la lógica de hover
+function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels }) {
   const meshRef = useRef()
   const [hovered, setHovered] = useState(false)
 
@@ -1180,9 +1263,9 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showLabels }) {
         />
       </mesh>
 
-      {/* Label - solo mostrar si showLabels es true */}
-      {showLabels && (
-        <Html position={[0, 1.3, 0]} center distanceFactor={10} occlude>
+      {/* Label - solo mostrar si showInitialLabels es true o si está en hover */}
+      {(showInitialLabels || hovered) && (
+        <Html position={[0, 2.0, 0]} center distanceFactor={10} occlude={false}>
           <div
             className={`px-2 py-1 rounded-full bg-black/80 border border-${qluster.color === "#22d3ee" ? "cyan" : qluster.color === "#ec4899" ? "pink" : qluster.color === "#a855f7" ? "purple" : "amber"}-500/50 text-${qluster.color === "#22d3ee" ? "cyan" : qluster.color === "#ec4899" ? "pink" : qluster.color === "#a855f7" ? "purple" : "amber"}-300 text-xs whitespace-nowrap`}
           >
@@ -1194,10 +1277,9 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showLabels }) {
   )
 }
 
-// Modificar la función QerniumNode para que roten alrededor de sus Qlusters
-function QerniumNode({ qernium, onHover, onLeave, onClick, showLabels }) {
+// Modificar la función QerniumNode para simplificar y mejorar la rotación alrededor de los Qlusters
+function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) {
   const meshRef = useRef()
-  const orbitRef = useRef()
   const [hovered, setHovered] = useState(false)
 
   // Different appearance based on status
@@ -1246,32 +1328,29 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showLabels }) {
 
   // Calcular posición orbital
   useFrame((state) => {
-    if (meshRef.current && orbitRef.current && qluster) {
+    if (meshRef.current && qluster) {
       const t = state.clock.getElapsedTime()
 
       // Cada Qernium tiene una velocidad y radio orbital ligeramente diferente
       // Usamos el ID para generar valores consistentes pero diferentes para cada Qernium
       const qerniumIndex = Number.parseInt(qernium.id.split("-")[2]) || 0
-      const angleOffset = (qerniumIndex * Math.PI) / 2 // Distribuir los Qerniums en 90 grados cada uno
+      const angleOffset = (qerniumIndex * Math.PI * 2) / 3 // Distribuir los Qerniums en 120 grados cada uno (360/3)
       const speed = 0.1 + qerniumIndex * 0.02 // Velocidades ligeramente diferentes
-      const radius = 2.5 + qerniumIndex * 0.2 // Radios ligeramente diferentes
-      const height = qerniumIndex * 0.3 - 0.45 // Alturas diferentes
+      const radius = 3.5 + qerniumIndex * 0.5 // Radios más grandes para separar más los Qerniums
+      const height = qerniumIndex * 0.5 - 0.5 // Alturas diferentes
 
       // Calcular posición orbital
       const angle = t * speed + angleOffset
       const x = Math.cos(angle) * radius
       const z = Math.sin(angle) * radius
 
-      // Actualizar posición del grupo orbital
-      orbitRef.current.position.set(qluster.position[0], qluster.position[1] + height, qluster.position[2])
-
-      // Actualizar posición relativa del Qernium dentro del grupo orbital
-      meshRef.current.position.set(x, 0, z)
+      // Actualizar posición del Qernium
+      meshRef.current.position.set(qluster.position[0] + x, qluster.position[1] + height, qluster.position[2] + z)
 
       // Actualizar la posición absoluta para las conexiones
       qernium.position = [qluster.position[0] + x, qluster.position[1] + height, qluster.position[2] + z]
 
-      // Rotación del Qernium
+      // Rotación del Qernium sobre sí mismo
       meshRef.current.rotation.y += 0.02
       if (hovered) {
         meshRef.current.rotation.x += 0.01
@@ -1280,21 +1359,18 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showLabels }) {
   })
 
   const handlePointerOver = (e) => {
-    if (qernium.status !== "published") return
     e.stopPropagation()
     setHovered(true)
     onHover()
   }
 
   const handlePointerOut = (e) => {
-    if (qernium.status !== "published") return
     e.stopPropagation()
     setHovered(false)
     onLeave()
   }
 
   const handleClick = (e) => {
-    if (qernium.status !== "published") return
     e.stopPropagation()
     onClick()
   }
@@ -1302,53 +1378,52 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showLabels }) {
   if (!qluster || !qluster.position) return null
 
   return (
-    <group ref={orbitRef}>
-      <group ref={meshRef}>
-        {/* Glow effect for available and completed qerniums */}
-        {qernium.status === "published" && (
-          <mesh scale={[nodeProps.scale * 2, nodeProps.scale * 2, nodeProps.scale * 2]}>
-            <sphereGeometry args={[1, 16, 16]} />
-            <meshBasicMaterial color={nodeProps.color} transparent opacity={0.1} />
-          </mesh>
-        )}
-
-        {/* Main geometry - using different polyhedrons for qerniums */}
-        <mesh
-          scale={[nodeProps.scale, nodeProps.scale, nodeProps.scale]}
-          onPointerOver={handlePointerOver}
-          onPointerOut={handlePointerOut}
-          onClick={handleClick}
-        >
-          {/* Usar diferentes geometrías según el índice del Qernium */}
-          {qernium.id.includes("-0-") ? (
-            <octahedronGeometry args={[1, 0]} />
-          ) : qernium.id.includes("-1-") ? (
-            <tetrahedronGeometry args={[1, 0]} />
-          ) : qernium.id.includes("-2-") ? (
-            <dodecahedronGeometry args={[1, 0]} />
-          ) : (
-            <icosahedronGeometry args={[1, 0]} />
-          )}
-          <meshStandardMaterial
-            color={nodeProps.color}
-            emissive={nodeProps.color}
-            emissiveIntensity={hovered ? nodeProps.emissiveIntensity * 1.5 : nodeProps.emissiveIntensity}
-            roughness={0.3}
-            metalness={0.7}
-            transparent={qernium.status !== "published"}
-            opacity={nodeProps.opacity}
-          />
+    <group>
+      {/* Glow effect for available and completed qerniums */}
+      {qernium.status === "published" && (
+        <mesh position={[0, 0, 0]} scale={[nodeProps.scale * 2, nodeProps.scale * 2, nodeProps.scale * 2]}>
+          <sphereGeometry args={[1, 16, 16]} />
+          <meshBasicMaterial color={nodeProps.color} transparent opacity={0.1} />
         </mesh>
+      )}
 
-        {/* Only show label for available and completed qerniums and if showLabels is true */}
-        {qernium.status === "published" && showLabels && hovered && (
-          <Html position={[0, 1, 0]} center distanceFactor={15} occlude>
-            <div className="px-2 py-1 rounded-full bg-black/80 border border-pink-500/50 text-pink-300 text-xs whitespace-nowrap">
-              {qernium.title}
-            </div>
-          </Html>
-        )}
-      </group>
+      {/* Main geometry - using simple sphere for qerniums */}
+      <mesh
+        ref={meshRef}
+        scale={[nodeProps.scale, nodeProps.scale, nodeProps.scale]}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        onClick={handleClick}
+      >
+        <sphereGeometry args={[1, 24, 24]} />
+        <meshStandardMaterial
+          color={nodeProps.color}
+          emissive={nodeProps.color}
+          emissiveIntensity={hovered ? nodeProps.emissiveIntensity * 1.5 : nodeProps.emissiveIntensity}
+          roughness={0.3}
+          metalness={0.7}
+          transparent={qernium.status !== "published"}
+          opacity={nodeProps.opacity}
+        />
+      </mesh>
+
+      {/* Only show label when hovered */}
+      {hovered && (
+        <Html
+          position={[
+            meshRef.current?.position.x || 0,
+            (meshRef.current?.position.y || 0) + 1.5,
+            meshRef.current?.position.z || 0,
+          ]}
+          center
+          distanceFactor={15}
+          occlude={false}
+        >
+          <div className="px-2 py-1 rounded-full bg-black/80 border border-pink-500/50 text-pink-300 text-xs whitespace-nowrap">
+            {qernium.title}
+          </div>
+        </Html>
+      )}
     </group>
   )
 }

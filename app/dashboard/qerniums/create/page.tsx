@@ -28,14 +28,23 @@ import {
   ArrowRight,
   Check,
   AlertCircle,
+  ClipboardCheck,
+  FileEdit,
+  Calendar,
 } from "lucide-react"
 import type { ContentType } from "@/lib/actions/content-actions"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { SupabaseSetupGuide } from "@/components/supabase-setup-guide"
 import SimpleRichEditor from "@/components/simple-rich-editor"
+import { Switch } from "@/components/ui/switch"
+// Corregir la importación para usar la exportación por defecto
+import QuizQuestionEditor, { type QuizQuestion } from "@/components/quiz-question-editor"
+// Añadir la importación del componente QuizPreview
+import { QuizPreview } from "@/components/quiz-preview"
 
 // Tipos para el contenido
 // type ContentType = "document" | "video" | "quiz" | "assignment"
+export type ContentTypeQernium = "texto" | "video" | "enlace" | "tarea" | "quiz" | "document" // Tipos de contenido para Qerniums
 
 interface Content {
   id: string
@@ -58,9 +67,10 @@ export default function CreateQerniumPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState("recent")
   const [selectedContent, setSelectedContent] = useState<Content | null>(null)
-  const [contentType, setContentType] = useState<"text" | "video" | "document" | "link">("text")
+  const [contentType, setContentType] = useState<ContentTypeQernium>("texto")
   const [videoSource, setVideoSource] = useState<"url" | "file">("url")
   const [showSetupGuide, setShowSetupGuide] = useState(false)
+  const [bloomTaxonomyEnabled, setBloomTaxonomyEnabled] = useState(true)
 
   // Estado para los contenidos existentes
   const [existingContents, setExistingContents] = useState<Content[]>([])
@@ -69,6 +79,25 @@ export default function CreateQerniumPage() {
   const [selectedContents, setSelectedContents] = useState<Content[]>([])
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentType | "all">("all")
   const [activeTab, setActiveTab] = useState("create-content")
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([
+    {
+      id: crypto.randomUUID(),
+      type: "single",
+      text: "",
+      richText: "",
+      options: [
+        { id: crypto.randomUUID(), text: "", isCorrect: false },
+        { id: crypto.randomUUID(), text: "", isCorrect: false },
+      ],
+      mediaType: "none",
+      points: 1,
+    },
+  ])
+  const [assignmentData, setAssignmentData] = useState({
+    dueDate: "",
+    requireFile: true,
+    instructions: "",
+  })
 
   const [qernium, setQernium] = useState({
     title: "",
@@ -358,12 +387,12 @@ export default function CreateQerniumPage() {
     })
     setContentType(
       selectedContent.type === "document"
-        ? "text"
+        ? "texto"
         : selectedContent.type === "video"
           ? "video"
           : selectedContent.type === "quiz"
             ? "document"
-            : "link",
+            : "enlace",
     )
     setActiveTab("create-content")
   }
@@ -379,8 +408,8 @@ export default function CreateQerniumPage() {
       const qerniumData = {
         title: qernium.title,
         description: qernium.description,
-        bloomLevel: qernium.bloomLevel,
-        actionVerb: qernium.actionVerb,
+        bloomLevel: bloomTaxonomyEnabled ? qernium.bloomLevel : "undefined",
+        actionVerb: bloomTaxonomyEnabled ? qernium.actionVerb : "Sin definir",
         estimatedTime: qernium.estimatedTime,
         coverImage: coverImage,
         skills: assignedSkills.map((skill) => ({
@@ -393,11 +422,13 @@ export default function CreateQerniumPage() {
             ? {
                 title: qernium.title, // Usamos el título del Qernium
                 description: qernium.description, // Usamos la descripción del Qernium
-                text: contentType === "text" ? qernium.content.text : undefined,
+                text: contentType === "texto" ? qernium.content.text : undefined,
                 url:
-                  (contentType === "video" && videoSource === "url") || contentType === "link"
+                  (contentType === "video" && videoSource === "url") || contentType === "enlace"
                     ? qernium.content.url
                     : undefined,
+                quiz: contentType === "quiz" ? quizQuestions : undefined,
+                assignment: contentType === "tarea" ? assignmentData : undefined,
               }
             : undefined,
       }
@@ -426,7 +457,7 @@ export default function CreateQerniumPage() {
   }
 
   // Validación para habilitar el botón siguiente
-  const canProceedToStep2 = qernium.title.trim() !== "" && qernium.bloomLevel !== ""
+  const canProceedToStep2 = qernium.title.trim() !== "" && (bloomTaxonomyEnabled ? qernium.bloomLevel !== "" : true)
   const canProceedToStep3 = true // Siempre podemos avanzar al paso 3
   const canProceedToStep4 = true // Siempre podemos avanzar al paso 4
   const canSubmit = qernium.title.trim() !== "" && qernium.bloomLevel !== ""
@@ -538,36 +569,61 @@ export default function CreateQerniumPage() {
               </div>
 
               <div className="space-y-4">
-                <Label>
-                  Nivel de Bloom <span className="text-red-500">*</span>
-                </Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {Object.keys(bloomVerbs).map((level) => (
-                    <div
-                      key={level}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        qernium.bloomLevel === level
-                          ? "border-purple-500 bg-purple-900/30"
-                          : "border-gray-700 bg-black/30 hover:bg-gray-900/30"
-                      }`}
-                      onClick={() => handleBloomLevelChange(level)}
-                    >
-                      <div className="flex justify-between items-center mb-2">
-                        <span className={`text-sm font-medium px-2 py-1 rounded ${getBloomLevelColor(level)}`}>
-                          {getBloomLevelName(level)}
-                        </span>
-                        {qernium.bloomLevel === level && <Check className="h-4 w-4 text-purple-400" />}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {bloomVerbs[level].slice(0, 3).join(", ")}
-                        {bloomVerbs[level].length > 3 ? "..." : ""}
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between">
+                  <Label>Nivel de Bloom</Label>
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="bloom-toggle" className="text-sm text-muted-foreground">
+                      Taxonomía activa
+                    </Label>
+                    <Switch
+                      id="bloom-toggle"
+                      checked={bloomTaxonomyEnabled}
+                      onCheckedChange={setBloomTaxonomyEnabled}
+                      className="data-[state=checked]:bg-purple-600"
+                    />
+                  </div>
                 </div>
+
+                {bloomTaxonomyEnabled ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Object.keys(bloomVerbs).map((level) => (
+                      <div
+                        key={level}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                          qernium.bloomLevel === level
+                            ? "border-purple-500 bg-purple-900/30"
+                            : "border-gray-700 bg-black/30 hover:bg-gray-900/30"
+                        }`}
+                        onClick={() => handleBloomLevelChange(level)}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className={`text-sm font-medium px-2 py-1 rounded ${getBloomLevelColor(level)}`}>
+                            {getBloomLevelName(level)}
+                          </span>
+                          {qernium.bloomLevel === level && <Check className="h-4 w-4 text-purple-400" />}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {bloomVerbs[level].slice(0, 3).join(", ")}
+                          {bloomVerbs[level].length > 3 ? "..." : ""}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg border border-gray-700 bg-black/30">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium px-2 py-1 rounded bg-gray-800 text-gray-300">
+                        Sin definir
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-2">
+                      La taxonomía de Bloom está desactivada. Puedes continuar sin definir un nivel específico.
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {qernium.bloomLevel && (
+              {bloomTaxonomyEnabled && qernium.bloomLevel && (
                 <div className="space-y-2">
                   <Label htmlFor="action-verb">
                     Verbo de Acción <span className="text-red-500">*</span>
@@ -637,14 +693,14 @@ export default function CreateQerniumPage() {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>Tipo de Contenido</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <div
                           className={`p-3 rounded-lg border cursor-pointer transition-all flex flex-col items-center ${
-                            contentType === "text"
+                            contentType === "texto"
                               ? "border-purple-500 bg-purple-900/30"
                               : "border-gray-700 bg-black/30 hover:bg-gray-900/30"
                           }`}
-                          onClick={() => setContentType("text")}
+                          onClick={() => setContentType("texto")}
                         >
                           <FileText className="h-6 w-6 mb-2 text-purple-300" />
                           <span>Texto</span>
@@ -673,20 +729,42 @@ export default function CreateQerniumPage() {
                         </div>
                         <div
                           className={`p-3 rounded-lg border cursor-pointer transition-all flex flex-col items-center ${
-                            contentType === "link"
+                            contentType === "enlace"
                               ? "border-pink-500 bg-pink-900/30"
                               : "border-gray-700 bg-black/30 hover:bg-gray-900/30"
                           }`}
-                          onClick={() => setContentType("link")}
+                          onClick={() => setContentType("enlace")}
                         >
                           <LinkIcon className="h-6 w-6 mb-2 text-pink-300" />
                           <span>Enlace</span>
+                        </div>
+                        <div
+                          className={`p-3 rounded-lg border cursor-pointer transition-all flex flex-col items-center ${
+                            contentType === "quiz"
+                              ? "border-amber-500 bg-amber-900/30"
+                              : "border-gray-700 bg-black/30 hover:bg-gray-900/30"
+                          }`}
+                          onClick={() => setContentType("quiz")}
+                        >
+                          <ClipboardCheck className="h-6 w-6 mb-2 text-amber-300" />
+                          <span>Quiz</span>
+                        </div>
+                        <div
+                          className={`p-3 rounded-lg border cursor-pointer transition-all flex flex-col items-center ${
+                            contentType === "tarea"
+                              ? "border-green-500 bg-green-900/30"
+                              : "border-gray-700 bg-black/30 hover:bg-gray-900/30"
+                          }`}
+                          onClick={() => setContentType("tarea")}
+                        >
+                          <FileEdit className="h-6 w-6 mb-2 text-green-300" />
+                          <span>Tarea</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Contenido específico según el tipo seleccionado */}
-                    {contentType === "text" && (
+                    {contentType === "texto" && (
                       <div className="space-y-2">
                         <Label htmlFor="text-content">Contenido de Texto</Label>
                         <SimpleRichEditor
@@ -810,7 +888,7 @@ export default function CreateQerniumPage() {
                       </div>
                     )}
 
-                    {contentType === "link" && (
+                    {contentType === "enlace" && (
                       <div className="space-y-2">
                         <Label htmlFor="link-url">URL del Recurso</Label>
                         <Input
@@ -828,6 +906,137 @@ export default function CreateQerniumPage() {
                         <p className="text-xs text-gray-400">
                           Enlace a un recurso externo como una página web, artículo o herramienta.
                         </p>
+                      </div>
+                    )}
+
+                    {contentType === "quiz" && (
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <Label>Preguntas del Quiz</Label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setQuizQuestions([
+                                ...quizQuestions,
+                                {
+                                  id: crypto.randomUUID(),
+                                  type: "single",
+                                  text: "",
+                                  richText: "",
+                                  options: [
+                                    { id: crypto.randomUUID(), text: "", isCorrect: false },
+                                    { id: crypto.randomUUID(), text: "", isCorrect: false },
+                                  ],
+                                  mediaType: "none",
+                                  points: 1,
+                                },
+                              ])
+                            }}
+                            className="border-amber-900/50 text-amber-300 hover:bg-amber-900/20"
+                          >
+                            <Plus className="h-4 w-4 mr-2" /> Añadir Pregunta
+                          </Button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {quizQuestions.map((question, index) => (
+                            <QuizQuestionEditor
+                              key={question.id}
+                              question={question}
+                              onUpdate={(updatedQuestion) => {
+                                const newQuestions = [...quizQuestions]
+                                newQuestions[index] = updatedQuestion
+                                setQuizQuestions(newQuestions)
+                              }}
+                              onDelete={() => {
+                                if (quizQuestions.length > 1) {
+                                  const newQuestions = [...quizQuestions]
+                                  newQuestions.splice(index, 1)
+                                  setQuizQuestions(newQuestions)
+                                } else {
+                                  toast({
+                                    title: "Error",
+                                    description: "Debe haber al menos una pregunta en el quiz",
+                                    variant: "destructive",
+                                  })
+                                }
+                              }}
+                              index={index}
+                            />
+                          ))}
+                        </div>
+
+                        {quizQuestions.length > 0 && (
+                          <div className="mt-6">
+                            <h3 className="text-lg font-medium text-amber-300 mb-4">Vista Previa</h3>
+                            <QuizPreview questions={quizQuestions} />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {contentType === "tarea" && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="assignment-instructions">Instrucciones de la Tarea</Label>
+                          <SimpleRichEditor
+                            value={assignmentData.instructions}
+                            onChange={(value) => setAssignmentData({ ...assignmentData, instructions: value })}
+                            theme="spacepunk"
+                            placeholder="Escribe las instrucciones para la tarea aquí..."
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="due-date">Fecha de Entrega</Label>
+                            <div className="flex">
+                              <Input
+                                id="due-date"
+                                type="date"
+                                value={assignmentData.dueDate}
+                                onChange={(e) => setAssignmentData({ ...assignmentData, dueDate: e.target.value })}
+                                className="border-green-900/50 bg-black/50 focus-visible:ring-green-500"
+                              />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="ml-2 text-green-300 hover:text-green-200 hover:bg-green-950/30"
+                              >
+                                <Calendar className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Entrega de Archivo</Label>
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id="require-file"
+                                checked={assignmentData.requireFile}
+                                onCheckedChange={(checked) =>
+                                  setAssignmentData({ ...assignmentData, requireFile: checked })
+                                }
+                                className="data-[state=checked]:bg-green-600"
+                              />
+                              <Label htmlFor="require-file" className="text-sm">
+                                {assignmentData.requireFile ? "Requiere subir archivo" : "No requiere archivo"}
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {assignmentData.requireFile && (
+                          <div className="p-4 border rounded-md border-green-900/50 bg-green-900/10">
+                            <div className="flex items-center">
+                              <FileText className="h-5 w-5 text-green-300 mr-2" />
+                              <span className="text-sm">
+                                Los estudiantes deberán subir un archivo como parte de esta tarea.
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

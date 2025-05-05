@@ -1052,6 +1052,7 @@ function SpaceScene({
         onLeave={onNodeLeave}
         onClick={() => onNodeClick(homeNode, "home")}
         showInitialLabels={showInitialLabels}
+        cameraTarget={cameraTarget}
       />
 
       {/* Render qlusters */}
@@ -1063,6 +1064,7 @@ function SpaceScene({
           onLeave={onNodeLeave}
           onClick={() => onNodeClick(qluster, "qluster")}
           showInitialLabels={showInitialLabels}
+          cameraTarget={cameraTarget}
         />
       ))}
 
@@ -1077,22 +1079,6 @@ function SpaceScene({
           showInitialLabels={showInitialLabels}
         />
       ))}
-
-      {/* Render connections between qlusters and their qerniums */}
-      {qerniums.map((qernium) => {
-        const qluster = qlusters.find((q) => q.id === qernium.qlusterId)
-        if (!qluster || !qernium.position || !qluster.position) return null
-
-        return (
-          <Connection
-            key={`connection-${qernium.id}`}
-            start={qluster.position}
-            end={qernium.position}
-            color={qluster.color}
-            status={qernium.status === "published" ? "available" : "locked"}
-          />
-        )
-      })}
 
       <OrbitControls
         ref={orbitControlsRef}
@@ -1113,11 +1099,58 @@ function SpaceScene({
 }
 
 // Nuevo componente para el nodo central "Home"
-function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels }) {
+function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels, cameraTarget }) {
   const meshRef = useRef()
   const glowRef = useRef()
   const ringsRef = useRef()
   const [hovered, setHovered] = useState(false)
+  const [showLabel, setShowLabel] = useState(false)
+  const [labelTimer, setLabelTimer] = useState(null)
+
+  // Verificar si el nodo está en el centro de enfoque
+  const isInFocus = useMemo(() => {
+    if (!cameraTarget) return false
+    // Comprobar si este nodo es el objetivo de la cámara
+    return (
+      Math.abs(cameraTarget[0] - home.position[0]) < 0.1 &&
+      Math.abs(cameraTarget[1] - home.position[1]) < 0.1 &&
+      Math.abs(cameraTarget[2] - home.position[2]) < 0.1
+    )
+  }, [cameraTarget, home.position])
+
+  // Gestionar la visibilidad de la etiqueta
+  useEffect(() => {
+    // Mostrar etiqueta si está en hover o en foco
+    if (hovered || isInFocus) {
+      setShowLabel(true)
+
+      // Limpiar cualquier temporizador existente
+      if (labelTimer) {
+        clearTimeout(labelTimer)
+        setLabelTimer(null)
+      }
+
+      // Si está en foco (no en hover), configurar temporizador para ocultar
+      if (isInFocus && !hovered) {
+        const timer = setTimeout(() => {
+          if (!hovered) {
+            // Verificar nuevamente que no esté en hover antes de ocultar
+            setShowLabel(false)
+          }
+        }, 10000) // 10 segundos
+        setLabelTimer(timer)
+      }
+    } else if (!hovered && !isInFocus) {
+      // Si no está ni en hover ni en foco, ocultar etiqueta
+      setShowLabel(false)
+    }
+
+    return () => {
+      if (labelTimer) {
+        clearTimeout(labelTimer)
+      }
+    }
+  }, [hovered, isInFocus])
 
   // Animaciones
   useFrame((state) => {
@@ -1152,8 +1185,11 @@ function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels }) {
 
   const handlePointerOut = (e) => {
     e.stopPropagation()
-    setHovered(false)
-    onLeave()
+    // Evitamos llamar a onLeave si ya no estamos en hover
+    if (hovered) {
+      setHovered(false)
+      onLeave()
+    }
   }
 
   const handleClick = (e) => {
@@ -1193,8 +1229,8 @@ function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels }) {
         />
       </mesh>
 
-      {/* Hologramas flotantes - solo mostrar si showInitialLabels es true o si está en hover */}
-      {(showInitialLabels || hovered) && (
+      {/* Etiqueta - mostrar solo cuando showLabel es true */}
+      {showLabel && (
         <Html position={[0, 3.5, 0]} center distanceFactor={15} occlude={false}>
           <div className="px-3 py-1 rounded-full bg-amber-900/80 border border-amber-500/50 text-amber-300 text-sm whitespace-nowrap">
             {home.title}
@@ -1209,9 +1245,56 @@ function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels }) {
 }
 
 // Modificar la función QlusterNode para hacerlos más pequeños y aplicar la lógica de hover
-function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels }) {
+function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels, cameraTarget }) {
   const meshRef = useRef()
   const [hovered, setHovered] = useState(false)
+  const [showLabel, setShowLabel] = useState(false)
+  const [labelTimer, setLabelTimer] = useState(null)
+
+  // Verificar si el nodo está en el centro de enfoque
+  const isInFocus = useMemo(() => {
+    if (!cameraTarget) return false
+    // Comprobar si este nodo es el objetivo de la cámara
+    return (
+      Math.abs(cameraTarget[0] - qluster.position[0]) < 0.1 &&
+      Math.abs(cameraTarget[1] - qluster.position[1]) < 0.1 &&
+      Math.abs(cameraTarget[2] - qluster.position[2]) < 0.1
+    )
+  }, [cameraTarget, qluster.position])
+
+  // Gestionar la visibilidad de la etiqueta
+  useEffect(() => {
+    // Mostrar etiqueta si está en hover o en foco
+    if (hovered || isInFocus) {
+      setShowLabel(true)
+
+      // Limpiar cualquier temporizador existente
+      if (labelTimer) {
+        clearTimeout(labelTimer)
+        setLabelTimer(null)
+      }
+
+      // Si está en foco (no en hover), configurar temporizador para ocultar
+      if (isInFocus && !hovered) {
+        const timer = setTimeout(() => {
+          if (!hovered) {
+            // Verificar nuevamente que no esté en hover antes de ocultar
+            setShowLabel(false)
+          }
+        }, 10000) // 10 segundos
+        setLabelTimer(timer)
+      }
+    } else if (!hovered && !isInFocus) {
+      // Si no está ni en hover ni en foco, ocultar etiqueta
+      setShowLabel(false)
+    }
+
+    return () => {
+      if (labelTimer) {
+        clearTimeout(labelTimer)
+      }
+    }
+  }, [hovered, isInFocus])
 
   // Pulse animation
   useFrame((state) => {
@@ -1232,8 +1315,11 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels }) 
 
   const handlePointerOut = (e) => {
     e.stopPropagation()
-    setHovered(false)
-    onLeave()
+    // Evitamos llamar a onLeave si ya no estamos en hover
+    if (hovered) {
+      setHovered(false)
+      onLeave()
+    }
   }
 
   const handleClick = (e) => {
@@ -1245,6 +1331,12 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels }) 
 
   return (
     <group position={qluster.position}>
+      {/* Esfera de área que contiene los Qerniums */}
+      <mesh scale={[5, 5, 5]}>
+        <sphereGeometry args={[1, 16, 16]} />
+        <meshBasicMaterial color={qluster.color} transparent={true} opacity={0.1} side={THREE.BackSide} />
+      </mesh>
+
       {/* Glow effect */}
       <mesh scale={[1.2, 1.2, 1.2]}>
         <sphereGeometry args={[1, 32, 32]} />
@@ -1263,8 +1355,8 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels }) 
         />
       </mesh>
 
-      {/* Label - solo mostrar si showInitialLabels es true o si está en hover */}
-      {(showInitialLabels || hovered) && (
+      {/* Label - mostrar solo cuando showLabel es true */}
+      {showLabel && (
         <Html position={[0, 2.0, 0]} center distanceFactor={10} occlude={false}>
           <div
             className={`px-2 py-1 rounded-full bg-black/80 border border-${qluster.color === "#22d3ee" ? "cyan" : qluster.color === "#ec4899" ? "pink" : qluster.color === "#a855f7" ? "purple" : "amber"}-500/50 text-${qluster.color === "#22d3ee" ? "cyan" : qluster.color === "#ec4899" ? "pink" : qluster.color === "#a855f7" ? "purple" : "amber"}-300 text-xs whitespace-nowrap`}
@@ -1277,7 +1369,7 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels }) 
   )
 }
 
-// Modificar la función QerniumNode para simplificar y mejorar la rotación alrededor de los Qlusters
+// Modificar la función QerniumNode para usar cubos rotados
 function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) {
   const meshRef = useRef()
   const [hovered, setHovered] = useState(false)
@@ -1350,11 +1442,10 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) 
       // Actualizar la posición absoluta para las conexiones
       qernium.position = [qluster.position[0] + x, qluster.position[1] + height, qluster.position[2] + z]
 
-      // Rotación del Qernium sobre sí mismo
-      meshRef.current.rotation.y += 0.02
-      if (hovered) {
-        meshRef.current.rotation.x += 0.01
-      }
+      // Rotación del Qernium sobre sí mismo - más dinámica para cubos
+      meshRef.current.rotation.x += 0.01
+      meshRef.current.rotation.y += 0.01
+      meshRef.current.rotation.z += 0.005
     }
   })
 
@@ -1379,15 +1470,7 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) 
 
   return (
     <group>
-      {/* Glow effect for available and completed qerniums */}
-      {qernium.status === "published" && (
-        <mesh position={[0, 0, 0]} scale={[nodeProps.scale * 2, nodeProps.scale * 2, nodeProps.scale * 2]}>
-          <sphereGeometry args={[1, 16, 16]} />
-          <meshBasicMaterial color={nodeProps.color} transparent opacity={0.1} />
-        </mesh>
-      )}
-
-      {/* Main geometry - using simple sphere for qerniums */}
+      {/* Main geometry - using cubes for qerniums */}
       <mesh
         ref={meshRef}
         scale={[nodeProps.scale, nodeProps.scale, nodeProps.scale]}
@@ -1395,7 +1478,7 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) 
         onPointerOut={handlePointerOut}
         onClick={handleClick}
       >
-        <sphereGeometry args={[1, 24, 24]} />
+        <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial
           color={nodeProps.color}
           emissive={nodeProps.color}
@@ -1425,98 +1508,5 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) 
         </Html>
       )}
     </group>
-  )
-}
-
-// Modificar la función Connection para mejorar las conexiones
-function Connection({ start, end, color, status }) {
-  const ref = useRef()
-
-  // Calculate the midpoint with a slight offset for a curved effect
-  const mid = useMemo(() => {
-    const midPoint = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2 + 0.3, (start[2] + end[2]) / 2]
-    return midPoint
-  }, [start, end])
-
-  // Create points for the quadratic curve
-  const points = useMemo(() => {
-    const curve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(...start),
-      new THREE.Vector3(...mid),
-      new THREE.Vector3(...end),
-    )
-    return curve.getPoints(20)
-  }, [start, mid, end])
-
-  // Determine line appearance based on status
-  const getLineProperties = () => {
-    switch (status) {
-      case "completed":
-        return {
-          color: "#10b981", // green
-          opacity: 0.8,
-          lineWidth: 2,
-        }
-      case "available":
-        return {
-          color,
-          opacity: 0.8,
-          lineWidth: 2,
-        }
-      case "locked":
-        return {
-          color: "#6b7280", // gray
-          opacity: 0.3,
-          lineWidth: 1,
-        }
-      default:
-        return {
-          color,
-          opacity: 0.5,
-          lineWidth: 1.5,
-        }
-    }
-  }
-
-  const lineProps = getLineProperties()
-
-  // Animate the line for available and completed connections
-  useFrame((state) => {
-    if (ref.current && (status === "available" || status === "completed")) {
-      if (ref.current.material instanceof THREE.LineDashedMaterial) {
-        ref.current.material.dashOffset -= 0.01
-        ref.current.computeLineDistances()
-      }
-    }
-  })
-
-  return (
-    <line ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={points.length}
-          array={new Float32Array(points.flatMap((p) => [p.x, p.y, p.z]))}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      {status !== "locked" ? (
-        <lineDashedMaterial
-          color={lineProps.color}
-          linewidth={lineProps.lineWidth}
-          transparent={true}
-          opacity={lineProps.opacity}
-          dashSize={0.5}
-          gapSize={0.2}
-        />
-      ) : (
-        <lineBasicMaterial
-          color={lineProps.color}
-          linewidth={lineProps.lineWidth}
-          transparent={true}
-          opacity={lineProps.opacity}
-        />
-      )}
-    </line>
   )
 }

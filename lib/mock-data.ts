@@ -175,68 +175,42 @@ export const mockQernex: Qernex = {
 }
 
 // Crear Qlusters
-export const mockQlusters: Qluster[] = [
+export const mockQlusters = [
   {
-    id: "qluster-1",
-    qernexId: "qernex-1",
+    id: "qluster1",
     title: "Física Cuántica",
-    description: "Explora los fundamentos de la física cuántica y sus aplicaciones en la tecnología moderna.",
-    startDate: "2025-04-01",
-    endDate: "2025-06-30",
-    status: "active",
-    visibility: "public",
-    color: "#22d3ee", // cyan
-    coverImage: "/abstract-geometric-gold.png",
-    autoEnroll: true,
-    sequentialProgress: true,
-    certificate: true,
-    creatorId: "creator-1",
-    creatorName: "Dr. Quantum",
-    qerniums: ["qernium-1", "qernium-2", "qernium-3", "qernium-4"],
-    progress: 65,
-    position: [0, 0, 0],
+    description: "Explora los fundamentos de la física cuántica y sus aplicaciones",
+    progress: 75,
+    color: "#22d3ee",
+    position: [-15, 0, -5], // Posición actualizada
+    qerniums: ["qernium1", "qernium2", "qernium3"],
   },
   {
-    id: "qluster-2",
-    qernexId: "qernex-1",
-    title: "Exploración Espacial",
-    description:
-      "Descubre los misterios del cosmos y las misiones espaciales que están expandiendo nuestro conocimiento del universo.",
-    startDate: "2025-04-15",
-    endDate: "2025-07-15",
-    status: "active",
-    visibility: "public",
-    color: "#ec4899", // pink
-    coverImage: "/abstract-color-run.png",
-    autoEnroll: true,
-    sequentialProgress: false,
-    certificate: true,
-    creatorId: "creator-2",
-    creatorName: "Dra. Cosmos",
-    qerniums: ["qernium-5", "qernium-6", "qernium-7", "qernium-8"],
-    progress: 30,
-    position: [-8, 3, -5],
-  },
-  {
-    id: "qluster-3",
-    qernexId: "qernex-1",
+    id: "qluster2",
     title: "Inteligencia Artificial",
-    description:
-      "Aprende sobre algoritmos, redes neuronales y aplicaciones de IA que están transformando nuestra sociedad.",
-    startDate: "2025-05-01",
-    endDate: "2025-08-01",
-    status: "active",
-    visibility: "public",
-    color: "#a855f7", // purple
-    coverImage: "/abstract-em.png",
-    autoEnroll: false,
-    sequentialProgress: true,
-    certificate: true,
-    creatorId: "creator-3",
-    creatorName: "Prof. Neural",
-    qerniums: ["qernium-9", "qernium-10", "qernium-11", "qernium-12"],
-    progress: 15,
-    position: [10, -2, -8],
+    description: "Aprende sobre los fundamentos y aplicaciones de la IA",
+    progress: 30,
+    color: "#ec4899",
+    position: [15, 5, 10], // Posición actualizada
+    qerniums: ["qernium4", "qernium5"],
+  },
+  {
+    id: "qluster3",
+    title: "Exploración Espacial",
+    description: "Descubre los secretos del cosmos y la exploración espacial",
+    progress: 10,
+    color: "#a855f7",
+    position: [0, -8, 20], // Posición actualizada
+    qerniums: ["qernium6"],
+  },
+  {
+    id: "qluster4",
+    title: "Programación Avanzada",
+    description: "Domina técnicas avanzadas de programación y arquitectura de software",
+    progress: 50,
+    color: "#22d3ee",
+    position: [-20, 10, 15], // Posición actualizada
+    qerniums: ["qernium7", "qernium8"],
   },
 ]
 
@@ -652,7 +626,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-8-1",
         qerniumId: "qernium-8",
         subskillId: "subskill-2-2",
-        subskillName: "Generación de Soluciones",
         skillName: "Resolución de Problemas",
         skillColor: "cyan",
         level: 4,
@@ -661,7 +634,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-8-2",
         qerniumId: "qernium-8",
         subskillId: "subskill-3-2",
-        subskillName: "Comunicación Oral",
         skillName: "Comunicación Efectiva",
         skillColor: "pink",
         level: 3,
@@ -716,7 +688,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-9-1",
         qerniumId: "qernium-9",
         subskillId: "subskill-1-1",
-        subskillName: "Análisis de Argumentos",
         skillName: "Pensamiento Crítico",
         skillColor: "purple",
         level: 2,
@@ -786,7 +757,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-10-1",
         qerniumId: "qernium-10",
         subskillId: "subskill-2-1",
-        subskillName: "Identificación de Problemas",
         skillName: "Resolución de Problemas",
         skillColor: "cyan",
         level: 3,
@@ -839,7 +809,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-11-1",
         qerniumId: "qernium-11",
         subskillId: "subskill-2-2",
-        subskillName: "Generación de Soluciones",
         skillName: "Resolución de Problemas",
         skillColor: "cyan",
         level: 4,
@@ -893,7 +862,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-12-1",
         qerniumId: "qernium-12",
         subskillId: "subskill-1-2",
-        subskillName: "Evaluación de Evidencia",
         skillName: "Pensamiento Crítico",
         skillColor: "purple",
         level: 4,
@@ -902,7 +870,6 @@ export const mockQerniums: Qernium[] = [
         id: "qs-12-2",
         qerniumId: "qernium-12",
         subskillId: "subskill-3-2",
-        subskillName: "Comunicación Oral",
         skillName: "Comunicación Efectiva",
         skillColor: "pink",
         level: 3,
@@ -956,35 +923,20 @@ export function getQlusterById(qlusterId: string): Qluster | undefined {
 }
 
 // Función para obtener el progreso del estudiante (simulado)
-export function getStudentProgress(): {
-  completedQerniums: number
-  totalQerniums: number
-  skills: { name: string; level: number; color: string }[]
-  achievements: { id: string; title: string; description: string; date: string; icon: string }[]
-} {
+export function getStudentProgress() {
   return {
-    completedQerniums: 5,
-    totalQerniums: 12,
+    completedQerniums: 24,
+    totalQerniums: 120,
     skills: [
-      { name: "Pensamiento Crítico", level: 3, color: "purple" },
-      { name: "Resolución de Problemas", level: 2, color: "cyan" },
-      { name: "Comunicación Efectiva", level: 1, color: "pink" },
+      { name: "Física", level: 3, color: "#22d3ee" },
+      { name: "Matemáticas", level: 4, color: "#ec4899" },
+      { name: "Programación", level: 2, color: "#a855f7" },
+      { name: "Biología", level: 1, color: "#10b981" },
     ],
     achievements: [
-      {
-        id: "ach-1",
-        title: "Primer Contacto",
-        description: "Completaste tu primer Qernium",
-        date: "2025-04-05",
-        icon: "Star",
-      },
-      {
-        id: "ach-2",
-        title: "Explorador Cuántico",
-        description: "Completaste todos los Qerniums de Física Cuántica",
-        date: "2025-04-20",
-        icon: "Atom",
-      },
+      { id: "ach-1", title: "Primer Contacto", completed: true },
+      { id: "ach-2", title: "Explorador Cuántico", progress: 60 },
+      { id: "ach-3", title: "Comunicador Estelar", progress: 30 },
     ],
   }
 }

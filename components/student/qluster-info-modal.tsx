@@ -89,7 +89,7 @@ export function QlusterInfoModal({ isOpen, onClose, qluster }) {
             <div className="flex justify-between items-center mt-6">
               <div>
                 <Badge className="bg-purple-900/30 text-purple-300 border border-purple-500/50">
-                  {qluster.status.charAt(0).toUpperCase() + qluster.status.slice(1)}
+                  {qluster.status ? qluster.status.charAt(0).toUpperCase() + qluster.status.slice(1) : "Desconocido"}
                 </Badge>
               </div>
               <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600">
@@ -115,7 +115,9 @@ export function QlusterInfoModal({ isOpen, onClose, qluster }) {
                         color: qernium.color || qluster.color,
                       }}
                     >
-                      <span className="text-xs font-bold">{qernium.bloomLevel.charAt(0).toUpperCase()}</span>
+                      <span className="text-xs font-bold">
+                        {qernium.bloomLevel ? qernium.bloomLevel.charAt(0).toUpperCase() : "N"}
+                      </span>
                     </div>
                     <div className="flex-1">
                       <h4 className="text-sm font-medium">{qernium.title}</h4>
@@ -123,20 +125,24 @@ export function QlusterInfoModal({ isOpen, onClose, qluster }) {
                       <div className="flex items-center gap-2 mt-2">
                         <Badge
                           className={`text-xs ${
-                            qernium.bloomLevel === "remember"
-                              ? "bg-blue-900/30 text-blue-300"
-                              : qernium.bloomLevel === "understand"
-                                ? "bg-green-900/30 text-green-300"
-                                : qernium.bloomLevel === "apply"
-                                  ? "bg-yellow-900/30 text-yellow-300"
-                                  : qernium.bloomLevel === "analyze"
-                                    ? "bg-orange-900/30 text-orange-300"
-                                    : qernium.bloomLevel === "evaluate"
-                                      ? "bg-red-900/30 text-red-300"
-                                      : "bg-purple-900/30 text-purple-300"
+                            !qernium.bloomLevel
+                              ? "bg-purple-900/30 text-purple-300"
+                              : qernium.bloomLevel === "remember"
+                                ? "bg-blue-900/30 text-blue-300"
+                                : qernium.bloomLevel === "understand"
+                                  ? "bg-green-900/30 text-green-300"
+                                  : qernium.bloomLevel === "apply"
+                                    ? "bg-yellow-900/30 text-yellow-300"
+                                    : qernium.bloomLevel === "analyze"
+                                      ? "bg-orange-900/30 text-orange-300"
+                                      : qernium.bloomLevel === "evaluate"
+                                        ? "bg-red-900/30 text-red-300"
+                                        : "bg-purple-900/30 text-purple-300"
                           }`}
                         >
-                          {qernium.bloomLevel.charAt(0).toUpperCase() + qernium.bloomLevel.slice(1)}
+                          {qernium.bloomLevel
+                            ? qernium.bloomLevel.charAt(0).toUpperCase() + qernium.bloomLevel.slice(1)
+                            : "No definido"}
                         </Badge>
                         <div className="flex items-center text-xs text-gray-400">
                           <Clock className="h-3 w-3 mr-1" />

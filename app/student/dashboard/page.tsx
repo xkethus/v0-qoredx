@@ -7,9 +7,11 @@ import { StudentSidebar } from "@/components/student/student-sidebar"
 import { QerniumPreviewModal } from "@/components/qernium-preview-modal"
 import { QlusterInfoModal } from "@/components/student/qluster-info-modal"
 import { AchievementNotification } from "@/components/student/achievement-notification"
-import { HUDToggleButton } from "@/components/student/hud-toggle-button"
+import { IntegratedHUD } from "@/components/student/integrated-hud"
 import { Button } from "@/components/ui/button"
-import { Rocket } from "lucide-react"
+import { Rocket, Layers } from "lucide-react"
+// Importar el nuevo componente
+import { HomeInfoModal } from "@/components/student/home-info-modal"
 
 export default function StudentDashboardPage() {
   const [showIntro, setShowIntro] = useState(true)
@@ -18,6 +20,9 @@ export default function StudentDashboardPage() {
   const [showAchievement, setShowAchievement] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true) // Sidebar abierto por defecto
   const [showHUDTutorial, setShowHUDTutorial] = useState(false)
+  const [showHUD, setShowHUD] = useState(false)
+  // Añadir un nuevo estado para el modal del centro de navegación
+  const [selectedHome, setSelectedHome] = useState(null)
 
   // Mock achievement notification after 10 seconds
   useEffect(() => {
@@ -42,6 +47,8 @@ export default function StudentDashboardPage() {
       setSelectedQernium(nodeData)
     } else if (nodeType === "qluster") {
       setSelectedQluster(nodeData)
+    } else if (nodeType === "home") {
+      setSelectedHome(nodeData)
     }
   }
 
@@ -81,8 +88,16 @@ export default function StudentDashboardPage() {
         <SpaceNavigation onNodeSelect={handleNodeSelect} />
       </main>
 
-      {/* HUD toggle button */}
-      <HUDToggleButton />
+      {/* Floating HUD toggle button */}
+      <button
+        onClick={() => setShowHUD(!showHUD)}
+        className="fixed bottom-4 right-4 z-40 bg-black/70 hover:bg-black/90 text-cyan-400 p-3 rounded-full border border-cyan-500/50 shadow-lg shadow-cyan-500/20"
+      >
+        <Layers className="h-6 w-6" />
+      </button>
+
+      {/* Integrated HUD */}
+      <IntegratedHUD visible={showHUD} onClose={() => setShowHUD(false)} />
 
       {/* HUD tutorial overlay */}
       {showHUDTutorial && (
@@ -96,6 +111,7 @@ export default function StudentDashboardPage() {
                 <li>Interactuar con los controles holográficos para acceder a diferentes Qlusters</li>
                 <li>Personalizar los colores y apariencia de tu interfaz</li>
                 <li>Ocultar o mostrar la interfaz para una vista más limpia</li>
+                <li>Acceder a tu perfil, logros y estadísticas desde el panel de control</li>
               </ul>
               <p>Esta interfaz es tu marco personal para explorar el cosmos del aprendizaje.</p>
             </div>
@@ -121,6 +137,10 @@ export default function StudentDashboardPage() {
           onClose={() => setSelectedQluster(null)}
           qluster={selectedQluster}
         />
+      )}
+
+      {selectedHome && (
+        <HomeInfoModal isOpen={!!selectedHome} onClose={() => setSelectedHome(null)} homeData={selectedHome} />
       )}
 
       {/* Achievement notification */}

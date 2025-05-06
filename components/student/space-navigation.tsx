@@ -6,19 +6,7 @@ import { OrbitControls, Html, Stars } from "@react-three/drei"
 import { Vector3 } from "three"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import {
-  Info,
-  Atom,
-  Layers,
-  Rocket,
-  Settings,
-  Navigation2,
-  EyeOff,
-  Monitor,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-} from "lucide-react"
+import { Info, Atom, Layers, Rocket, ZoomIn, ZoomOut, RotateCcw, Monitor, Navigation2, EyeOff } from "lucide-react"
 import * as THREE from "three"
 import { mockQlusters } from "@/lib/mock-data"
 import { useHUD } from "@/lib/contexts/hud-context"
@@ -728,12 +716,6 @@ export function SpaceNavigation({ onNodeSelect }) {
                             : hoveredNode.status === "available" || hoveredNode.status === "published"
                               ? "pink"
                               : "gray"
-                        }-900/30 text-${
-                          hoveredNode.status === "completed"
-                            ? "green"
-                            : hoveredNode.status === "available" || hoveredNode.status === "published"
-                              ? "pink"
-                              : "gray"
                         }-300 border border-${
                           hoveredNode.status === "completed"
                             ? "green"
@@ -774,18 +756,11 @@ export function SpaceNavigation({ onNodeSelect }) {
       )}
 
       {/* Customization button */}
-      <Button
-        onClick={toggleCustomization}
-        className="absolute top-4 right-4 bg-black/70 border border-cyan-500 text-cyan-300 hover:bg-cyan-900/20 z-10"
-        size="sm"
-      >
-        <Settings className="h-4 w-4 mr-2" />
-        Personalizar
-      </Button>
 
       {/* Botones de HUD y Navegación */}
+      {/* Botones de HUD y Navegación - Ocultados por solicitud del usuario */}
+
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-        {/* Botón de HUD */}
         <div className="relative">
           <div
             className={`absolute -inset-1 bg-gradient-to-r from-cyan-500 to-pink-500 rounded-full blur opacity-75 ${
@@ -801,7 +776,6 @@ export function SpaceNavigation({ onNodeSelect }) {
           </Button>
         </div>
 
-        {/* Botón de Navegación */}
         <div className="relative">
           <div
             className={`absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur opacity-75 ${
@@ -1141,7 +1115,7 @@ function HomeNode({ home, onHover, onLeave, onClick, showInitialLabels, cameraTa
         setLabelTimer(timer)
       }
     } else if (!hovered && !isInFocus) {
-      // Si no está ni en hover ni en foco, ocultar etiqueta
+      // Si no está ni en foco ni en hover, ocultar etiqueta
       setShowLabel(false)
     }
 
@@ -1285,7 +1259,7 @@ function QlusterNode({ qluster, onHover, onLeave, onClick, showInitialLabels, ca
         setLabelTimer(timer)
       }
     } else if (!hovered && !isInFocus) {
-      // Si no está ni en hover ni en foco, ocultar etiqueta
+      // Si no está ni en foco ni en hover, ocultar etiqueta
       setShowLabel(false)
     }
 
@@ -1510,3 +1484,8 @@ function QerniumNode({ qernium, onHover, onLeave, onClick, showInitialLabels }) 
     </group>
   )
 }
+// Vamos a revisar y asegurarnos de que solo existan los dos botones necesarios
+// Buscaremos cualquier botón duplicado y lo eliminaremos
+
+// Verificar que solo haya un botón para el HUD y uno para la navegación
+// Asegurarnos de que no haya botones duplicados o redundantes

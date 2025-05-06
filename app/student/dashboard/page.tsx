@@ -9,7 +9,7 @@ import { QlusterInfoModal } from "@/components/student/qluster-info-modal"
 import { AchievementNotification } from "@/components/student/achievement-notification"
 import { IntegratedHUD } from "@/components/student/integrated-hud"
 import { Button } from "@/components/ui/button"
-import { Rocket, Layers } from "lucide-react"
+import { Rocket } from "lucide-react"
 // Importar el nuevo componente
 import { HomeInfoModal } from "@/components/student/home-info-modal"
 
@@ -87,14 +87,6 @@ export default function StudentDashboardPage() {
       <main className="w-full h-screen">
         <SpaceNavigation onNodeSelect={handleNodeSelect} />
       </main>
-
-      {/* Floating HUD toggle button */}
-      <button
-        onClick={() => setShowHUD(!showHUD)}
-        className="fixed bottom-4 right-4 z-40 bg-black/70 hover:bg-black/90 text-cyan-400 p-3 rounded-full border border-cyan-500/50 shadow-lg shadow-cyan-500/20"
-      >
-        <Layers className="h-6 w-6" />
-      </button>
 
       {/* Integrated HUD */}
       <IntegratedHUD visible={showHUD} onClose={() => setShowHUD(false)} />

@@ -37,7 +37,7 @@ QoreEdu LMS es una plataforma de gestión de aprendizaje (Learning Management Sy
 - Mejora en el manejo de errores de conexión
 - Soporte para entornos de desarrollo y producción
 
-### Documentación
+### Documentaci��n
 - Documentación detallada de la estructura del proyecto
 - Documentación de componentes del dashboard
 - Documentación de páginas principales

@@ -1,28 +1,29 @@
 "use client"
 
-import { Monitor } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { useHUD } from "@/lib/contexts/hud-context"
+import { Button } from "@/components/ui/button"
+import { Layers } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 export function HUDToggleButton() {
-  const { showHUD, toggleHUD } = useHUD()
+  const { toggleHUD } = useHUD()
+  const pathname = usePathname()
+
+  // No renderizar este botón en la página de dashboard del estudiante
+  // ya que allí ya existe un botón para el HUD en la navegación espacial
+  if (pathname === "/student/dashboard") {
+    return null
+  }
 
   return (
-    <div className="fixed bottom-24 right-6 z-50">
-      <div className="relative">
-        <div
-          className={`absolute -inset-1 bg-gradient-to-r from-cyan-500 to-pink-500 rounded-full blur opacity-75 ${
-            showHUD ? "animate-pulse" : ""
-          }`}
-        ></div>
-        <Button
-          onClick={toggleHUD}
-          className="relative bg-black hover:bg-gray-900 text-white border border-cyan-500 rounded-full h-14 w-14 flex items-center justify-center"
-          title={showHUD ? "Desactivar HUD" : "Activar HUD"}
-        >
-          <Monitor className="h-6 w-6" />
-        </Button>
-      </div>
-    </div>
+    <Button
+      onClick={toggleHUD}
+      variant="outline"
+      size="icon"
+      className="fixed bottom-4 right-4 z-50 rounded-full bg-cyan-900/70 text-cyan-300 border-cyan-700 hover:bg-cyan-800"
+    >
+      <Layers className="h-5 w-5" />
+      <span className="sr-only">Toggle HUD</span>
+    </Button>
   )
 }

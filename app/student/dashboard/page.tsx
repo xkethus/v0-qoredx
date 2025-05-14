@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { SpaceNavigation } from "@/components/student/space-navigation"
 import { StudentHeader } from "@/components/student/student-header"
 import { StudentSidebar } from "@/components/student/student-sidebar"
@@ -15,23 +15,29 @@ import { HomeInfoModal } from "@/components/student/home-info-modal"
 
 export default function StudentDashboardPage() {
   const [showIntro, setShowIntro] = useState(true)
-  const [selectedQernium, setSelectedQernium] = useState(null)
-  const [selectedQluster, setSelectedQluster] = useState(null)
+  // Replace these three states:
+  // const [selectedQernium, setSelectedQernium] = useState(null)
+  // const [selectedQluster, setSelectedQluster] = useState(null)
+  // const [selectedHome, setSelectedHome] = useState(null)
+
+  // With this consolidated state:
+  const [selectedModal, setSelectedModal] = useState({ type: null, data: null })
   const [showAchievement, setShowAchievement] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true) // Sidebar abierto por defecto
   const [showHUDTutorial, setShowHUDTutorial] = useState(false)
   const [showHUD, setShowHUD] = useState(false)
   // Añadir un nuevo estado para el modal del centro de navegación
-  const [selectedHome, setSelectedHome] = useState(null)
+  // const [selectedHome, setSelectedHome] = useState(null)
 
   // Mock achievement notification after 10 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowAchievement(true)
-    }, 10000)
-
-    return () => clearTimeout(timer)
+  const showAchievementNotification = useCallback(() => {
+    setShowAchievement(true)
   }, [])
+
+  useEffect(() => {
+    const timer = setTimeout(showAchievementNotification, 10000)
+    return () => clearTimeout(timer)
+  }, [showAchievementNotification])
 
   // Show HUD tutorial after intro
   useEffect(() => {
@@ -42,15 +48,9 @@ export default function StudentDashboardPage() {
   }, [showIntro])
 
   // Handle node selection from 3D space
-  const handleNodeSelect = (nodeType, nodeData) => {
-    if (nodeType === "qernium") {
-      setSelectedQernium(nodeData)
-    } else if (nodeType === "qluster") {
-      setSelectedQluster(nodeData)
-    } else if (nodeType === "home") {
-      setSelectedHome(nodeData)
-    }
-  }
+  const handleNodeSelect = useCallback((nodeType, nodeData) => {
+    setSelectedModal({ type: nodeType, data: nodeData })
+  }, [])
 
   if (showIntro) {
     return (
@@ -115,24 +115,28 @@ export default function StudentDashboardPage() {
       )}
 
       {/* Modals */}
-      {selectedQernium && (
+      {selectedModal.type === "qernium" && (
         <QerniumPreviewModal
-          isOpen={!!selectedQernium}
-          onClose={() => setSelectedQernium(null)}
-          qernium={selectedQernium}
+          isOpen={selectedModal.type === "qernium"}
+          onClose={() => setSelectedModal({ type: null, data: null })}
+          qernium={selectedModal.data}
         />
       )}
 
-      {selectedQluster && (
+      {selectedModal.type === "qluster" && (
         <QlusterInfoModal
-          isOpen={!!selectedQluster}
-          onClose={() => setSelectedQluster(null)}
-          qluster={selectedQluster}
+          isOpen={selectedModal.type === "qluster"}
+          onClose={() => setSelectedModal({ type: null, data: null })}
+          qluster={selectedModal.data}
         />
       )}
 
-      {selectedHome && (
-        <HomeInfoModal isOpen={!!selectedHome} onClose={() => setSelectedHome(null)} homeData={selectedHome} />
+      {selectedModal.type === "home" && (
+        <HomeInfoModal
+          isOpen={selectedModal.type === "home"}
+          onClose={() => setSelectedModal({ type: null, data: null })}
+          homeData={selectedModal.data}
+        />
       )}
 
       {/* Achievement notification */}

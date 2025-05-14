@@ -1,6 +1,21 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from "react"
+
+// Default values
+const DEFAULT_COLORS = {
+  cockpitColor: "#1a1a2e",
+  frameColor: "#4a4e69",
+  consoleColor: "#22d3ee",
+  hologramColor: "#ec4899",
+  lightColor: "#a855f7",
+}
+
+const DEFAULT_STYLES = {
+  frameStyle: "standard",
+  consoleStyle: "basic",
+  lightStyle: "standard",
+}
 
 // Tipos para el contexto
 type HUDCustomizations = {
@@ -27,19 +42,8 @@ type HUDContextType = {
 }
 
 // Valores por defecto
-const defaultCustomizations: HUDCustomizations = {
-  cockpitColor: "#1a1a2e",
-  frameColor: "#4a4e69",
-  consoleColor: "#22d3ee",
-  hologramColor: "#ec4899",
-  lightColor: "#a855f7",
-}
-
-const defaultHUDStyle: HUDStyle = {
-  frameStyle: "standard",
-  consoleStyle: "basic",
-  lightStyle: "standard",
-}
+const defaultCustomizations: HUDCustomizations = DEFAULT_COLORS
+const defaultHUDStyle: HUDStyle = DEFAULT_STYLES
 
 // Crear el contexto
 const HUDContext = createContext<HUDContextType | undefined>(undefined)
@@ -76,39 +80,32 @@ export function HUDProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Guardar preferencias cuando cambien
+  // Simple non-debounced save for boolean value
   useEffect(() => {
     localStorage.setItem("showHUD", showHUD.toString())
   }, [showHUD])
 
-  useEffect(() => {
-    localStorage.setItem("hudCustomizations", JSON.stringify(customizations))
-  }, [customizations])
+  // Debounced saves for complex objects
+  useDebounceEffect(customizations, 300, "hudCustomizations")
+  useDebounceEffect(hudStyle, 300, "hudStyle")
 
-  useEffect(() => {
-    localStorage.setItem("hudStyle", JSON.stringify(hudStyle))
-  }, [hudStyle])
-
-  // Función para alternar la visibilidad del HUD
-  const toggleHUD = () => {
+  const toggleHUD = useCallback(() => {
     setShowHUD((prev) => !prev)
-  }
+  }, [])
 
-  // Función para actualizar una personalización específica
-  const updateCustomization = (key: keyof HUDCustomizations, value: string) => {
+  const updateCustomization = useCallback((key: keyof HUDCustomizations, value: string) => {
     setCustomizations((prev) => ({
       ...prev,
       [key]: value,
     }))
-  }
+  }, [])
 
-  // Función para actualizar un estilo específico del HUD
-  const updateHUDStyle = (key: keyof HUDStyle, value: string) => {
+  const updateHUDStyle = useCallback((key: keyof HUDStyle, value: string) => {
     setHUDStyle((prev) => ({
       ...prev,
       [key]: value,
     }))
-  }
+  }, [])
 
   return (
     <HUDContext.Provider
@@ -124,6 +121,19 @@ export function HUDProvider({ children }: { children: ReactNode }) {
       {children}
     </HUDContext.Provider>
   )
+}
+
+// Debounced localStorage save function
+const useDebounceEffect = (value, delay, storageKey) => {
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      localStorage.setItem(storageKey, JSON.stringify(value))
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay, storageKey])
 }
 
 // Hook personalizado para usar el contexto

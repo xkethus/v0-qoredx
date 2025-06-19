@@ -1,0 +1,377 @@
+[
+  {
+    "id": "content-1-1",
+    "qerniumId": "qernium-1",
+    "title": "Introducción a la Mecánica Cuántica",
+    "description": "Conceptos básicos y desarrollo histórico",
+    "type": "document",
+    "content": {
+      "text": "La mecánica cuántica es una rama fundamental de la física que describe el comportamiento de la materia y la energía a escalas muy pequeñas, como átomos y partículas subatómicas. Desarrollada a principios del siglo XX, esta teoría revolucionó nuestra comprensión del mundo microscópico.\n\n## Orígenes históricos\n\nLa mecánica cuántica surgió como respuesta a problemas que la física clásica no podía explicar, como la radiación del cuerpo negro y el efecto fotoeléctrico. Científicos como Max Planck, Albert Einstein, Niels Bohr, Werner Heisenberg y Erwin Schrödinger contribuyeron significativamente a su desarrollo.\n\n## Principios fundamentales\n\n1. **Cuantización**: La energía, el momento angular y otras cantidades físicas vienen en paquetes discretos o \"cuantos\".\n2. **Dualidad onda-partícula**: Las partículas subatómicas exhiben propiedades tanto de ondas como de partículas.\n3. **Principio de incertidumbre**: No es posible conocer simultáneamente y con precisión arbitraria la posición y el momento de una partícula.\n4. **Superposición**: Los sistemas cuánticos pueden existir en múltiples estados simultáneamente hasta que son medidos.\n5. **Entrelazamiento cuántico**: Las partículas pueden estar correlacionadas de tal manera que el estado de una afecta instantáneamente al estado de otra, independientemente de la distancia que las separe.\n\n## Aplicaciones modernas\n\nLa mecánica cuántica ha permitido el desarrollo de numerosas tecnologías, incluyendo:\n\n- Láseres\n- Resonancia magnética nuclear\n- Microscopios electrónicos\n- Transistores y semiconductores\n- Computación cuántica\n- Criptografía cuántica\n\nEstas aplicaciones han transformado campos como la medicina, las telecomunicaciones y la informática.",
+      "attachments": [
+        {
+          "name": "Línea de tiempo de la mecánica cuántica.pdf",
+          "url": "#",
+          "type": "pdf"
+        }
+      ]
+    },
+    "order": 1
+  },
+  {
+    "id": "content-1-2",
+    "qerniumId": "qernium-1",
+    "title": "Principio de Incertidumbre",
+    "description": "Comprensión del principio de Heisenberg",
+    "type": "quiz",
+    "content": {
+      "questions": [
+        {
+          "id": "q1",
+          "question": "¿Cuál es el principio de incertidumbre de Heisenberg?",
+          "type": "single",
+          "options": [
+            {
+              "id": "q1-opt1",
+              "text": "No es posible conocer simultáneamente y con precisión arbitraria la posición y el momento de una partícula.",
+              "isCorrect": true
+            },
+            {
+              "id": "q1-opt2",
+              "text": "La energía total de un sistema aislado se conserva.",
+              "isCorrect": false
+            },
+            {
+              "id": "q1-opt3",
+              "text": "La materia y la energía son equivalentes según la ecuación E=mc².",
+              "isCorrect": false
+            },
+            {
+              "id": "q1-opt4",
+              "text": "Las partículas subatómicas exhiben propiedades tanto de ondas como de partículas.",
+              "isCorrect": false
+            }
+          ],
+          "points": 2,
+          "mediaType": "none"
+        },
+        {
+          "id": "q2",
+          "question": "¿Cuál de las siguientes afirmaciones sobre el principio de incertidumbre es correcta?",
+          "type": "single",
+          "options": [
+            {
+              "id": "q2-opt1",
+              "text": "Es una limitación de nuestros instrumentos de medición actuales.",
+              "isCorrect": false
+            },
+            {
+              "id": "q2-opt2",
+              "text": "Es una propiedad fundamental de la naturaleza a nivel cuántico.",
+              "isCorrect": true
+            },
+            {
+              "id": "q2-opt3",
+              "text": "Fue refutado por Einstein con su famosa frase 'Dios no juega a los dados'.",
+              "isCorrect": false
+            },
+            {
+              "id": "q2-opt4",
+              "text": "Solo se aplica a partículas con carga eléctrica.",
+              "isCorrect": false
+            }
+          ],
+          "points": 2,
+          "mediaType": "none"
+        },
+        {
+          "id": "q3",
+          "question": "Explique brevemente cómo el principio de incertidumbre afecta nuestra comprensión del mundo subatómico.",
+          "type": "long",
+          "options": [],
+          "points": 5,
+          "mediaType": "none"
+        }
+      ],
+      "passingScore": 70,
+      "timeLimit": 20
+    },
+    "order": 2
+  },
+  {
+    "id": "content-2-1",
+    "qerniumId": "qernium-2",
+    "title": "La Ecuación de Schrödinger",
+    "description": "Formulación y significado",
+    "type": "document",
+    "content": {
+      "text": "# La Ecuación de Schrödinger\n\nLa ecuación de Schrödinger es una ecuación diferencial que describe cómo el estado cuántico de un sistema físico cambia con el tiempo. Formulada por el físico austríaco Erwin Schrödinger en 1925, es una de las ecuaciones fundamentales de la mecánica cuántica.\n\n## Formulación matemática\n\nLa ecuación de Schrödinger dependiente del tiempo se escribe como:\n\n$$i\\hbar\\frac{\\partial}{\\partial t}\\Psi(\\mathbf{r},t) = \\hat{H}\\Psi(\\mathbf{r},t)$$\n\nDonde:\n- $i$ es la unidad imaginaria\n- $\\hbar$ es la constante de Planck reducida\n- $\\Psi(\\mathbf{r},t)$ es la función de onda que describe el estado del sistema\n- $\\hat{H}$ es el operador hamiltoniano, que representa la energía total del sistema\n\nPara muchas aplicaciones, se utiliza la ecuación de Schrödinger independiente del tiempo:\n\n$$\\hat{H}\\Psi(\\mathbf{r}) = E\\Psi(\\mathbf{r})$$\n\nDonde $E$ es la energía del estado estacionario.\n\n## Significado físico\n\nLa función de onda $\\Psi$ contiene toda la información sobre el sistema cuántico. El cuadrado de su módulo, $|\\Psi|^2$, representa la densidad de probabilidad de encontrar la partícula en una posición determinada.\n\nA diferencia de la mecánica clásica, que puede predecir con exactitud la posición y velocidad de un objeto, la mecánica cuántica solo puede proporcionar probabilidades. Esta naturaleza probabilística es una característica fundamental del mundo cuántico.\n\n## Aplicaciones\n\nLa ecuación de Schrödinger se utiliza para resolver diversos problemas en mecánica cuántica, como:\n\n1. **Partícula en un pozo de potencial**: Describe el comportamiento de partículas confinadas en regiones limitadas del espacio.\n2. **Oscilador armónico cuántico**: Modelo para sistemas que experimentan fuerzas restauradoras proporcionales al desplazamiento.\n3. **Átomo de hidrógeno**: Permite calcular los niveles de energía y las funciones de onda del electrón en el átomo de hidrógeno.\n4. **Efecto túnel cuántico**: Explica cómo las partículas pueden atravesar barreras de potencial que serían infranqueables según la física clásica.\n\nLa ecuación de Schrödinger ha sido fundamental para el desarrollo de la física moderna y ha permitido avances tecnológicos como los transistores, los láseres y la resonancia magnética nuclear.",
+      "attachments": [
+        {
+          "name": "Ejercicios resueltos de la ecuación de Schrödinger.pdf",
+          "url": "#",
+          "type": "pdf"
+        }
+      ]
+    },
+    "order": 1
+  },
+  {
+    "id": "content-2-2",
+    "qerniumId": "qernium-2",
+    "title": "Aplicaciones de la Ecuación de Schrödinger",
+    "description": "Resolución de problemas prácticos",
+    "type": "assignment",
+    "content": {
+      "instructions": "# Tarea: Resolución de la Ecuación de Schrödinger para un Pozo de Potencial Infinito\n\n## Objetivo\nEn esta tarea, resolverás la ecuación de Schrödinger para un pozo de potencial infinito unidimensional y analizarás los resultados obtenidos.\n\n## Instrucciones\n\n1. **Planteamiento del problema**\n   - Considera una partícula de masa $m$ confinada en un pozo de potencial infinito de ancho $L$.\n   - El potencial $V(x)$ es 0 para $0 < x < L$ e infinito en cualquier otro lugar.\n\n2. **Resolución matemática**\n   - Escribe la ecuación de Schrödinger independiente del tiempo para este sistema.\n   - Resuelve la ecuación diferencial con las condiciones de contorno apropiadas.\n   - Determina las funciones de onda normalizadas $\\psi_n(x)$ y los niveles de energía $E_n$.\n\n3. **Análisis de resultados**\n   - Grafica las funciones de onda para los tres primeros estados ($n = 1, 2, 3$).\n   - Calcula y grafica las densidades de probabilidad $|\\psi_n(x)|^2$ correspondientes.\n   - Determina los valores esperados de la posición $\\langle x \\rangle$ y el momento $\\langle p \\rangle$ para cada estado.\n\n4. **Aplicaciones**\n   - Discute cómo este modelo se puede aplicar a sistemas físicos reales, como electrones en nanoestructuras.\n   - Explica las limitaciones del modelo del pozo infinito y cómo se podrían abordar problemas más realistas.\n\n## Formato de entrega\n- Documento PDF que incluya todo el desarrollo matemático, gráficas y análisis.\n- Las ecuaciones deben estar claramente escritas y numeradas.\n- Las gráficas deben incluir títulos, etiquetas en los ejes y leyendas apropiadas.\n- Extensión máxima: 8 páginas (incluyendo gráficas y referencias).\n\n## Criterios de evaluación\n- Corrección matemática (40%)\n- Calidad de las gráficas y visualizaciones (20%)\n- Análisis e interpretación de resultados (30%)\n- Claridad en la presentación y redacción (10%)\n\n## Fecha de entrega\n15 de mayo de 2025, antes de las 23:59 horas.\n\n## Recursos adicionales\n- Libro de texto: \"Quantum Mechanics\" de David J. Griffiths, capítulo 2.\n- Notas de clase sobre la ecuación de Schrödinger y pozos de potencial.\n- Biblioteca de funciones matemáticas para Python/MATLAB disponible en el repositorio del curso.",
+      "deadline": "2025-05-15",
+      "submissionType": "pdf",
+      "resources": [
+        {
+          "name": "Guía de resolución de ecuaciones diferenciales.pdf",
+          "url": "#",
+          "type": "pdf"
+        },
+        {
+          "name": "Código base para graficar funciones de onda.py",
+          "url": "#",
+          "type": "code"
+        }
+      ]
+    },
+    "order": 2
+  },
+  {
+    "id": "content-3-1",
+    "qerniumId": "qernium-3",
+    "title": "Entrelazamiento Cuántico",
+    "description": "Concepto y experimentos clave",
+    "type": "video",
+    "content": {
+      "url": "https://example.com/videos/entanglement.mp4",
+      "duration": 1800,
+      "transcript": "En este video, exploraremos el fascinante fenómeno del entrelazamiento cuántico, uno de los aspectos más sorprendentes y contraintuitivos de la mecánica cuántica.\n\n[00:00:15] El entrelazamiento cuántico ocurre cuando dos o más partículas se generan, interactúan o comparten proximidad espacial de tal manera que el estado cuántico de cada partícula no puede describirse independientemente de las demás, incluso cuando las partículas están separadas por grandes distancias.\n\n[00:01:30] Einstein se refirió a este fenómeno como \"acción fantasmal a distancia\" y lo consideraba una evidencia de que la mecánica cuántica era una teoría incompleta. Junto con Podolsky y Rosen, propuso el famoso experimento mental EPR (Einstein-Podolsky-Rosen) para cuestionar la completitud de la mecánica cuántica.\n\n[00:03:45] Sin embargo, en 1964, John Bell formuló un teorema que permitía poner a prueba experimentalmente si existían variables ocultas locales que pudieran explicar las correlaciones observadas en sistemas entrelazados. Las desigualdades de Bell proporcionaron un marco matemático para distinguir entre las predicciones de la mecánica cuántica y las teorías de variables ocultas locales.\n\n[00:07:20] En la década de 1980, Alain Aspect y su equipo realizaron experimentos que violaron las desigualdades de Bell, confirmando las predicciones de la mecánica cuántica y demostrando que el entrelazamiento cuántico es un fenómeno real que no puede explicarse mediante teorías clásicas.\n\n[00:12:40] Veamos ahora cómo se genera el entrelazamiento cuántico en el laboratorio. Uno de los métodos más comunes es la conversión paramétrica descendente espontánea, donde un fotón de alta energía se divide en dos fotones de menor energía que están entrelazados.\n\n[00:15:30] El entrelazamiento cuántico tiene aplicaciones revolucionarias en campos como la computación cuántica, la criptografía cuántica y la teleportación cuántica. En la computación cuántica, el entrelazamiento permite realizar operaciones en múltiples qubits simultáneamente, lo que confiere a las computadoras cuánticas su potencial poder de cálculo.\n\n[00:20:45] En la criptografía cuántica, el entrelazamiento se utiliza para generar claves de encriptación que son teóricamente imposibles de interceptar sin ser detectado, proporcionando un nivel de seguridad sin precedentes.\n\n[00:23:10] La teleportación cuántica, por su parte, utiliza el entrelazamiento para transferir el estado cuántico de una partícula a otra distante, sin que la partícula misma viaje por el espacio intermedio. Es importante destacar que esto no permite la transmisión de información más rápida que la luz, ya que se requiere un canal de comunicación clásico para completar el proceso.\n\n[00:26:30] Recientes experimentos han logrado demostrar el entrelazamiento entre partículas separadas por distancias cada vez mayores, incluso entre la Tierra y satélites en órbita, como en el caso del satélite cuántico chino Micius.\n\n[00:28:50] A pesar de estos avances, el entrelazamiento cuántico sigue planteando profundas cuestiones filosóficas sobre la naturaleza de la realidad, la localidad y la causalidad en nuestro universo.\n\n[00:29:45] En conclusión, el entrelazamiento cuántico no solo es uno de los fenómenos más fascinantes de la física moderna, sino que también está en la base de algunas de las tecnologías más prometedoras del siglo XXI, que podrían transformar radicalmente campos como la computación, las comunicaciones y la criptografía.",
+      "chapters": [
+        {
+          "title": "Introducción al entrelazamiento",
+          "startTime": 0
+        },
+        {
+          "title": "El debate Einstein-Bohr",
+          "startTime": 90
+        },
+        {
+          "title": "Teorema de Bell",
+          "startTime": 225
+        },
+        {
+          "title": "Experimentos de Aspect",
+          "startTime": 440
+        },
+        {
+          "title": "Generación de entrelazamiento",
+          "startTime": 760
+        },
+        {
+          "title": "Aplicaciones prácticas",
+          "startTime": 930
+        },
+        {
+          "title": "Criptografía cuántica",
+          "startTime": 1245
+        },
+        {
+          "title": "Teleportación cuántica",
+          "startTime": 1390
+        },
+        {
+          "title": "Experimentos recientes",
+          "startTime": 1590
+        },
+        {
+          "title": "Implicaciones filosóficas",
+          "startTime": 1730
+        }
+      ]
+    },
+    "order": 1
+  },
+  {
+    "id": "content-4-1",
+    "qerniumId": "qernium-4",
+    "title": "Fundamentos de Computación Cuántica",
+    "description": "Qubits, puertas cuánticas y algoritmos",
+    "type": "document",
+    "content": {
+      "text": "# Fundamentos de Computación Cuántica\n\n## Introducción\n\nLa computación cuántica utiliza las propiedades de la mecánica cuántica para realizar cálculos de manera fundamentalmente diferente a las computadoras clásicas. Mientras que las computadoras clásicas procesan bits que pueden ser 0 o 1, las computadoras cuánticas utilizan qubits que pueden existir en superposiciones de estados.\n\n## Qubits: La unidad básica de información cuántica\n\nUn qubit (bit cuántico) es la unidad básica de información en la computación cuántica. A diferencia de un bit clásico, que solo puede estar en uno de dos estados (0 o 1), un qubit puede existir en una superposición de ambos estados simultáneamente.\n\nMatemáticamente, el estado de un qubit se representa como:\n\n$$|\\psi\\rangle = \\alpha|0\\rangle + \\beta|1\\rangle$$\n\nDonde $\\alpha$ y $\\beta$ son números complejos que satisfacen $|\\alpha|^2 + |\\beta|^2 = 1$, y $|0\\rangle$ y $|1\\rangle$ son los estados base.\n\nCuando se mide un qubit, se obtiene el estado $|0\\rangle$ con probabilidad $|\\alpha|^2$ o el estado $|1\\rangle$ con probabilidad $|\\beta|^2$.\n\n## Implementaciones físicas de qubits\n\nExisten varias formas de implementar qubits físicamente:\n\n1. **Qubits superconductores**: Utilizan circuitos superconductores y el efecto Josephson.\n2. **Qubits de iones atrapados**: Utilizan iones individuales atrapados en campos electromagnéticos.\n3. **Qubits fotónicos**: Utilizan estados cuánticos de la luz.\n4. **Qubits de espín nuclear**: Utilizan el espín de núcleos atómicos.\n5. **Qubits de puntos cuánticos**: Utilizan electrones confinados en estructuras semiconductoras.\n\n## Puertas cuánticas\n\nLas puertas cuánticas son operaciones unitarias que manipulan los estados de los qubits. Algunas puertas cuánticas fundamentales incluyen:\n\n### Puertas de un solo qubit\n\n- **Puerta X (NOT)**: Invierte los estados $|0\\rangle$ y $|1\\rangle$.\n- **Puerta Hadamard (H)**: Crea superposiciones, transformando $|0\\rangle$ en $\\frac{1}{\\sqrt{2}}(|0\\rangle + |1\\rangle)$ y $|1\\rangle$ en $\\frac{1}{\\sqrt{2}}(|0\\rangle - |1\\rangle)$.\n- **Puertas de fase (S, T)**: Introducen cambios de fase en el estado $|1\\rangle$.\n\n### Puertas de múltiples qubits\n\n- **Puerta CNOT (Control-NOT)**: Invierte el estado del qubit objetivo si el qubit de control está en estado $|1\\rangle$.\n- **Puerta SWAP**: Intercambia los estados de dos qubits.\n- **Puerta Toffoli (CCNOT)**: Una puerta NOT controlada por dos qubits.\n\n## Algoritmos cuánticos\n\nLos algoritmos cuánticos aprovechan las propiedades de superposición y entrelazamiento para resolver ciertos problemas más eficientemente que los algoritmos clásicos.\n\n### Algoritmo de Shor\n\nEl algoritmo de Shor, desarrollado por Peter Shor en 1994, puede factorizar números enteros grandes en tiempo polinómico, lo que representa una amenaza para los sistemas de criptografía de clave pública basados en la dificultad de factorización.\n\n### Algoritmo de Grover\n\nEl algoritmo de Grover, desarrollado por Lov Grover en 1996, permite buscar en una base de datos no estructurada con una aceleración cuadrática en comparación con los algoritmos clásicos.\n\n### Algoritmo VQE (Variational Quantum Eigensolver)\n\nEl VQE es un algoritmo híbrido cuántico-clásico utilizado para encontrar el estado fundamental de moléculas, con aplicaciones en química cuántica.\n\n## Desafíos y limitaciones\n\nLa computación cuántica enfrenta varios desafíos:\n\n1. **Decoherencia**: Los qubits son extremadamente sensibles al entorno y pueden perder sus propiedades cuánticas rápidamente.\n2. **Corrección de errores**: Los errores cuánticos son más complejos que los errores clásicos y requieren técnicas especiales de corrección.\n3. **Escalabilidad**: Aumentar el número de qubits manteniendo la coherencia es técnicamente difícil.\n4. **Interfaz cuántico-clásica**: La comunicación eficiente entre componentes cuánticos y clásicos es un desafío.\n\n## Aplicaciones potenciales\n\nLa computación cuántica tiene aplicaciones potenciales en diversos campos:\n\n1. **Criptografía**: Romper sistemas criptográficos actuales y desarrollar nuevos métodos de criptografía cuántica.\n2. **Química cuántica**: Simular sistemas moleculares complejos para el desarrollo de nuevos materiales y fármacos.\n3. **Optimización**: Resolver problemas de optimización complejos en logística, finanzas y aprendizaje automático.\n4. **Inteligencia artificial**: Acelerar ciertos algoritmos de aprendizaje automático.\n5. **Simulación física**: Modelar sistemas cuánticos complejos que son intratables para computadoras clásicas.\n\n## Conclusión\n\nLa computación cuántica representa un cambio de paradigma en la forma en que procesamos la información. Aunque todavía está en sus primeras etapas, tiene el potencial de revolucionar numerosos campos y resolver problemas que actualmente son intratables para las computadoras clásicas.",
+      "attachments": [
+        {
+          "name": "Introducción a los circuitos cuánticos.pdf",
+          "url": "#",
+          "type": "pdf"
+        }
+      ]
+    },
+    "order": 1
+  },
+  {
+    "id": "content-4-2",
+    "qerniumId": "qernium-4",
+    "title": "Algoritmo de Shor",
+    "description": "Comprensión del algoritmo de factorización cuántica",
+    "type": "quiz",
+    "content": {
+      "questions": [
+        {
+          "id": "q1",
+          "question": "¿Cuál es la principal aplicación del algoritmo de Shor?",
+          "type": "single",
+          "options": [
+            {
+              "id": "q1-opt1",
+              "text": "Factorización de números enteros grandes",
+              "isCorrect": true
+            },
+            {
+              "id": "q1-opt2",
+              "text": "Búsqueda en bases de datos no estructuradas",
+              "isCorrect": false
+            },
+            {
+              "id": "q1-opt3",
+              "text": "Simulación de sistemas cuánticos",
+              "isCorrect": false
+            },
+            {
+              "id": "q1-opt4",
+              "text": "Optimización de rutas logísticas",
+              "isCorrect": false
+            }
+          ],
+          "points": 2,
+          "mediaType": "none"
+        },
+        {
+          "id": "q2",
+          "question": "¿Por qué el algoritmo de Shor representa una amenaza para la criptografía RSA?",
+          "type": "single",
+          "options": [
+            {
+              "id": "q2-opt1",
+              "text": "Porque puede descifrar mensajes RSA directamente",
+              "isCorrect": false
+            },
+            {
+              "id": "q2-opt2",
+              "text": "Porque puede factorizar eficientemente los números grandes utilizados como claves en RSA",
+              "isCorrect": true
+            },
+            {
+              "id": "q2-opt3",
+              "text": "Porque utiliza más qubits que los bits necesarios para RSA",
+              "isCorrect": false
+            },
+            {
+              "id": "q2-opt4",
+              "text": "Porque puede generar números primos más rápidamente",
+              "isCorrect": false
+            }
+          ],
+          "points": 2,
+          "mediaType": "none"
+        },
+        {
+          "id": "q3",
+          "question": "¿Qué componente matemático fundamental utiliza el algoritmo de Shor?",
+          "type": "single",
+          "options": [
+            {
+              "id": "q3-opt1",
+              "text": "Transformada de Fourier cuántica",
+              "isCorrect": true
+            },
+            {
+              "id": "q3-opt2",
+              "text": "Algoritmo de Euclides",
+              "isCorrect": false
+            },
+            {
+              "id": "q3-opt3",
+              "text": "Método de Monte Carlo",
+              "isCorrect": false
+            },
+            {
+              "id": "q3-opt4",
+              "text": "Teorema del límite central",
+              "isCorrect": false
+            }
+          ],
+          "points": 2,
+          "mediaType": "none"
+        },
+        {
+          "id": "q4",
+          "question": "¿Cuál es la complejidad temporal del algoritmo de Shor para factorizar un número N?",
+          "type": "single",
+          "options": [
+            {
+              "id": "q4-opt1",
+              "text": "O(log N)",
+              "isCorrect": false
+            },
+            {
+              "id": "q4-opt2",
+              "text": "O((log N)²)",
+              "isCorrect": false
+            },
+            {
+              "id": "q4-opt3",
+              "text": "O((log N)³)",
+              "isCorrect": true
+            },
+            {
+              "id": "q4-opt4",
+              "text": "O(N)",
+              "isCorrect": false
+            }
+          ],
+          "points": 2,
+          "mediaType": "none"
+        },
+        {
+          "id": "q5",
+          "question": "Explique brevemente cómo el algoritmo de Shor reduce el problema de factorización a encontrar el período de una función.",
+          "type": "long",
+          "options": [],
+          "points": 5,
+          "mediaType": "none"
+        }
+      ],
+      "passingScore": 70,
+      "timeLimit": 30
+    },
+    "order": 2
+  },
+  {
+    "id": "content-5-1",
+    "qerniumId": "qernium-5",
+    "title": "Planetas del Sistema Solar",
+    "description": "Características y composición",
+    "type": "document",
+    "content": {
+      "text": "# Planetas del Sistema Solar\n\nNuestro Sistema Solar está compuesto por ocho planetas principales que orbitan alrededor del Sol, además de numerosos planetas enanos, lunas, asteroides, cometas y otros cuerpos celestes.\n\n## Planetas interiores (terrestres)\n\n### Mercurio\n- **Posición**: Primer planeta desde el Sol\n- **Diámetro**: 4,879 km\n- **Composición**: Principalmente rocoso con un gran núcleo de hierro\n- **Características notables**: Sin atmósfera significativa, superficie craterizada, extremas variaciones de temperatura\n- **Período orbital**: 88 días terrestres\n\n### Venus\n- **Posición**: Segundo planeta desde el Sol\n- **Diámetro**: 12,104 km\n- **Composición**: Rocoso con densa atmósfera de dióxido de carbono\n- **Características notables**: Efecto invernadero extremo, temperatura superficial de 462°C, rotación retrógrada\n- **Período orbital**: 225 días terrestres\n\n### Tierra\n- **Posición**: Tercer planeta desde el Sol\n- **Diámetro**: 12,742 km\n- **Composición**: Rocoso con atmósfera rica en nitrógeno y oxígeno\n- **Características notables**: Único planeta conocido con agua líquida en superficie y vida\n- **Período orbital**: 365.25 días\n- **Satélites naturales**: 1 (Luna)\n\n### Marte\n- **Posición**: Cuarto planeta desde el Sol\n- **Diámetro**: 6,779 km\n- **Composición**: Rocoso con fina atmósfera de dióxido de carbono\n- **Características notables**: Superficie rojiza por óxido de hierro, casquetes polares, evidencia de agua líquida en el pasado\n- **Período orbital**: 687 días terrestres\n- **Satélites naturales**: 2 (Fobos y Deimos)\n\n## Planetas ext
+
+I see there's an issue with the JSON file in your project. The error message indicates there's a bad control character in the JSON at position 76758, which is causing parsing problems.
+
+To fix this issue, we need to properly format the JSON file. Here are some steps you can take:
+
+1. **Validate the JSON**: Use a JSON validator tool to identify the exact issue. Tools like JSONLint can help pinpoint the problem.
+\
+2. **Check for unescaped characters**: Look for unescaped control characters like newlines (`\n`), tabs (`\t`), or quotes (`"`) within string values.
+\
+3. **Fix the specific location**: The error is at line 704, column 1145. Look at th"""""""""""""""""""""""""""""""""""""""""""""""""""i"s" "s"p"ecific location in your file.
+
+4. **Consider regenerating the file**: If the file is generated from another source, consider regenerating it with proper JSON escaping.
+
+5. **Use a JSON formatter**: Run the file through a JSON formatter that will properly escape all special characters.
+
+Would you like me to help you create a properly formatted version of this JSON file? If so, could you share the contents of the file or a portion around the problematic area?

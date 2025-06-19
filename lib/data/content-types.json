@@ -1,0 +1,53 @@
+{
+  "types": [
+    {
+      "id": "document",
+      "name": "Documento",
+      "icon": "FileText",
+      "color": "purple",
+      "description": "Contenido textual con formato enriquecido, imágenes y adjuntos"
+    },
+    {
+      "id": "video",
+      "name": "Video",
+      "icon": "Video",
+      "color": "cyan",
+      "description": "Contenido audiovisual con transcripción opcional"
+    },
+    {
+      "id": "quiz",
+      "name": "Quiz",
+      "icon": "HelpCircle",
+      "color": "amber",
+      "description": "Evaluación con preguntas de diferentes tipos"
+    },
+    {
+      "id": "assignment",
+      "name": "Tarea",
+      "icon": "ClipboardList",
+      "color": "pink",
+      "description": "Actividad para realizar y entregar"
+    },
+    {
+      "id": "texto",
+      "name": "Texto",
+      "icon": "FileText",
+      "color": "blue",
+      "description": "Contenido textual simple"
+    },
+    {
+      "id": "enlace",
+      "name": "Enlace",
+      "icon": "Link",
+      "color": "green",
+      "description": "Recurso externo accesible mediante URL"
+    },
+    {
+      "id": "tarea",
+      "name": "Tarea",
+      "icon": "FileEdit",
+      "color": "green",
+      "description": "Actividad para realizar y entregar"
+    }
+  ]
+}
